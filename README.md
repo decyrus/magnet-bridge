@@ -1,29 +1,96 @@
-# MagnetBridge
+<p align="center">
+  <img
+    src="Sources/MagnetBridgeApp/Assets.xcassets/AppIcon.appiconset/AppIcon-256.png"
+    width="144"
+    height="144"
+    alt="MagnetBridge app icon"
+  >
+</p>
 
-MagnetBridge is an open-source macOS 14+ utility that sends `magnet:` links to
-Transmission running on a local or remote server, then opens Transmission Web
-UI in your chosen browser. Torrent data is downloaded by the server — never by
-the Mac running MagnetBridge.
+<h1 align="center">MagnetBridge</h1>
 
-The compact Swift 6 and SwiftUI app can stay in the menu bar or behave like a
-regular Dock app. It supports the legacy RPC API used by Transmission 4.0.x and
-the JSON-RPC 2.0 API introduced in Transmission 4.1.
+<p align="center">
+  <strong>Open magnet links from your Mac directly in Transmission on a NAS,
+  home server, or VPS.</strong>
+</p>
 
-When a magnet link arrives, MagnetBridge asks whether to send it to the
-configured Transmission server or open it in another installed magnet client.
-The complete link is kept in memory only for the duration of that choice.
+<p align="center">
+  <a href="https://github.com/decyrus/magnet-bridge/actions/workflows/ci.yml"><img src="https://github.com/decyrus/magnet-bridge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/decyrus/magnet-bridge/releases/latest"><img src="https://img.shields.io/github/v/release/decyrus/magnet-bridge?display_name=tag&sort=semver" alt="Latest release"></a>
+  <img src="https://img.shields.io/badge/macOS-14%2B-111111?logo=apple" alt="macOS 14 or later">
+  <img src="https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white" alt="Swift 6">
+  <a href="https://github.com/decyrus/homebrew-tap"><img src="https://img.shields.io/badge/Homebrew-decyrus%2Ftap-FBB040?logo=homebrew&logoColor=black" alt="Homebrew tap"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/decyrus/magnet-bridge" alt="MIT license"></a>
+</p>
+
+MagnetBridge is a small open-source macOS companion for
+[Transmission](https://transmissionbt.com/). It catches `magnet:` links from
+Safari, Chrome, Firefox, and other apps, sends them to Transmission over its RPC
+API, then opens Transmission Web UI in your preferred browser.
+
+The torrent is downloaded by the Transmission server. Your Mac only handles
+the magnet link.
+
+## The use case
+
+You browse on your Mac, but Transmission runs somewhere else: a NAS, a home
+server, a seedbox, or a VPS.
+
+1. Click a magnet link in your browser.
+2. Choose **Send to Transmission Server** in MagnetBridge, or hand the link to
+   another installed magnet client.
+3. MagnetBridge validates the link and sends it to your configured Transmission
+   instance.
+4. Transmission downloads the torrent on the server and MagnetBridge opens its
+   Web UI.
+
+Repeated links are safe: an existing torrent is reported as already added
+instead of being duplicated.
+
+## Highlights
+
+- Native Swift 6 and SwiftUI app for macOS 14 and later.
+- Compact window with optional menu bar mode.
+- Works with Transmission 4.0.x legacy RPC and Transmission 4.1+ JSON-RPC 2.0.
+- Supports Basic Authentication and stores the password only in macOS Keychain.
+- Opens the Web UI in the system browser or a selected installed browser.
+- Keeps full magnet links and credentials out of settings, logs, and diagnostics.
+- Signed with Developer ID, notarized by Apple, and built for Apple Silicon and
+  Intel Macs.
+- No telemetry.
 
 ## Install
 
-The recommended one-line installer downloads the signed and notarized release,
-verifies its published SHA-256 checksum, installs the app and optional CLI, and
-opens the graphical setup:
+### Homebrew
+
+Install the signed and notarized release from the
+[`decyrus/tap`](https://github.com/decyrus/homebrew-tap) Cask:
+
+```sh
+brew install --cask decyrus/tap/magnet-bridge
+open -a MagnetBridge
+```
+
+The fully qualified name adds the tap automatically; a separate `brew tap`
+command is not required.
+
+### Manual
+
+Download the signed ZIP from the
+[latest release](https://github.com/decyrus/magnet-bridge/releases/latest),
+extract it, and move `MagnetBridge.app` to Applications. This requires no shell
+pipeline.
+
+### One-line installer
+
+The installer verifies the published SHA-256 checksum, installs the app and
+optional CLI, and opens the graphical setup:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/decyrus/magnet-bridge/main/scripts/install.sh | sh
 ```
 
-To inspect the installer before running it:
+To inspect it first:
 
 ```sh
 curl -fsSLO https://raw.githubusercontent.com/decyrus/magnet-bridge/main/scripts/install.sh
@@ -37,75 +104,63 @@ Set a custom CLI installation directory if needed:
 MAGNETBRIDGE_BIN_DIR="$HOME/bin" sh install.sh
 ```
 
-A generated Homebrew Cask is attached to each release. Until a dedicated
-`decyrus/homebrew-magnet-bridge` tap is published, install it from a downloaded
-Cask file:
-
-```sh
-curl -fLO https://github.com/decyrus/magnet-bridge/releases/latest/download/magnet-bridge.rb
-brew install --cask ./magnet-bridge.rb
-open -a MagnetBridge
-```
-
-## Uninstall
-
-If MagnetBridge was installed with Homebrew:
-
-```sh
-brew uninstall --cask magnet-bridge
-```
-
-To remove the app and its saved preferences:
-
-```sh
-brew uninstall --zap --cask magnet-bridge
-```
-
-For a manual or one-line installation:
-
-```sh
-pkill -x MagnetBridge 2>/dev/null || true
-rm -rf /Applications/MagnetBridge.app "$HOME/Applications/MagnetBridge.app"
-rm -f /usr/local/bin/magnetbridge "$HOME/.local/bin/magnetbridge"
-```
-
-The Transmission password is intentionally left in macOS Keychain during a
-normal uninstall. To remove the password and preferences as well:
-
-```sh
-security delete-generic-password \
-  -s org.magnetbridge.app \
-  -a transmission-rpc 2>/dev/null || true
-defaults delete org.magnetbridge.app 2>/dev/null || true
-```
-
 ## Configure
 
-Open MagnetBridge from Applications. Enter one server address, such as
-`https://transmission.example`; the standard `/transmission/rpc` and
-`/transmission/web/` paths are added automatically. Configure optional Basic
-Authentication, browser, timeout, and torrent start mode, then use **Test
-Connection** and **Save & Make Default**.
+Open MagnetBridge from Applications and enter one server address, such as
+`https://transmission.example`. MagnetBridge adds Transmission's standard
+`/transmission/rpc` and `/transmission/web/` paths automatically.
+
+Configure optional Basic Authentication, browser, timeout, and torrent start
+mode, then use **Test Connection** and **Save & Make Default**. Non-standard RPC
+and Web UI URLs are available under **Advanced**.
 
 The password is never loaded back into the form and is stored only in macOS
-Keychain. Custom RPC and Web UI paths are hidden under **Custom endpoint
-paths**. HTTP requires an explicit warning acknowledgement.
+Keychain. Plain HTTP requires an explicit warning acknowledgement. For remote
+servers, prefer HTTPS through a trusted reverse proxy, a VPN, or Tailscale; do
+not publish the Transmission RPC port directly to the internet.
 
 By default MagnetBridge stays available from the menu bar after its window is
 closed. Turn off **Keep MagnetBridge in the menu bar** to use it as a regular
 Dock app that quits when the window closes.
 
-The CLI remains available for automation and recovery:
+Test protocol handling with:
 
-Check or repair the system protocol association at any time:
+```sh
+open "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
+```
+
+## Update
+
+Homebrew installations will update with:
+
+```sh
+brew update
+brew upgrade --cask magnet-bridge
+```
+
+For a manual installation, replace the app with the copy from the
+[latest release](https://github.com/decyrus/magnet-bridge/releases/latest).
+One-line installations can be updated by running the installer again.
+Preferences and the Keychain password are preserved by all three methods.
+
+Automatic in-app updates are planned using Sparkle 2 with a signed appcast.
+The staged design and security requirements are documented in
+[Updating MagnetBridge](Documentation/Updating.md).
+
+## CLI
+
+The GUI is the primary interface. The optional `magnetbridge` command remains
+available for automation, diagnostics, and recovery:
 
 ```sh
 magnetbridge status
 magnetbridge register
 magnetbridge unregister
+magnetbridge test
+magnetbridge config show
 ```
 
-Configuration can be scripted:
+Configuration can also be scripted:
 
 ```sh
 magnetbridge config set server https://server.example
@@ -116,43 +171,53 @@ magnetbridge config set start-mode immediately
 magnetbridge config set open-web-ui true
 magnetbridge config set browser system
 magnetbridge config set menu-bar true
-magnetbridge test
 ```
 
-Inspect the current non-secret configuration:
-
-```sh
-magnetbridge config show
-```
-
-An interactive terminal wizard is also retained:
+An interactive terminal wizard is retained:
 
 ```sh
 magnetbridge configure
 magnetbridge configure --advanced
 ```
 
-The individual `rpc-url` and `web-ui-url` keys also remain available for
-advanced scripted configuration.
-
-For an intentionally unencrypted RPC endpoint, explicitly opt in:
+For an intentionally unencrypted endpoint:
 
 ```sh
 magnetbridge config set allow-http true
 magnetbridge config set server http://server.example:9091
 ```
 
-For remote servers, prefer HTTPS through a trusted reverse proxy, a VPN, or
-Tailscale. Do not expose the Transmission RPC port directly to the internet.
+## Uninstall
 
-Test protocol handling with:
+Homebrew:
 
 ```sh
-open "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
+brew uninstall --cask magnet-bridge
 ```
 
-MagnetBridge will show a choice between the configured server and other
-installed magnet handlers, such as the local Transmission app.
+Also remove preferences and Keychain data:
+
+```sh
+brew uninstall --zap --cask magnet-bridge
+```
+
+Manual or one-line installation:
+
+```sh
+pkill -x MagnetBridge 2>/dev/null || true
+rm -rf /Applications/MagnetBridge.app "$HOME/Applications/MagnetBridge.app"
+rm -f /usr/local/bin/magnetbridge "$HOME/.local/bin/magnetbridge"
+```
+
+A normal uninstall intentionally leaves the Transmission password in Keychain.
+To remove it and all preferences:
+
+```sh
+security delete-generic-password \
+  -s org.magnetbridge.app \
+  -a transmission-rpc 2>/dev/null || true
+defaults delete org.magnetbridge.app 2>/dev/null || true
+```
 
 ## Build
 
@@ -172,17 +237,18 @@ xcodebuild \
 
 The standalone core tests can also be run with `swift test`.
 
-## Privacy and scope
+## Project
 
-MagnetBridge has no telemetry. Logs and diagnostics must not contain passwords
-or complete magnet links. The MVP intentionally excludes torrent management,
-multiple servers, `.torrent` files, file selection, download directories,
-mobile apps, and an embedded Web UI.
+MagnetBridge intentionally focuses on one job: routing magnet links to one
+Transmission server. Torrent management, multiple profiles, `.torrent` files,
+file selection, download directories, mobile apps, and an embedded Web UI are
+outside the current scope.
 
-See [architecture](Documentation/Architecture.md), [contributing
-guide](CONTRIBUTING.md), [release guide](Documentation/Releasing.md), and
-[security policy](SECURITY.md).
+Read the [architecture](Documentation/Architecture.md),
+[Homebrew distribution plan](Documentation/Homebrew.md),
+[release guide](Documentation/Releasing.md),
+[contributing guide](CONTRIBUTING.md), and [security policy](SECURITY.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MagnetBridge is available under the [MIT License](LICENSE).

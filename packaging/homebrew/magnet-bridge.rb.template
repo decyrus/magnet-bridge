@@ -7,7 +7,7 @@ cask "magnet-bridge" do
   desc "Send magnet links to a local or remote Transmission server"
   homepage "https://github.com/decyrus/magnet-bridge"
 
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "MagnetBridge.app"
   binary "#{appdir}/MagnetBridge.app/Contents/MacOS/MagnetBridge",

@@ -16,15 +16,24 @@ Configure these repository secrets:
 | `APPLE_ID` | Apple ID used for notarization |
 | `APPLE_TEAM_ID` | Apple Developer Team ID |
 | `APP_SPECIFIC_PASSWORD` | App-specific password for the Apple ID |
+| `HOMEBREW_TAP_TOKEN` | Fine-grained token with Contents write access only to `decyrus/homebrew-tap` |
 
 Create a release by pushing a semantic version tag:
 
 ```sh
-git tag v0.1.0
-git push origin v0.1.0
+git tag -a v0.3.1 -m "MagnetBridge v0.3.1"
+git push origin v0.3.1
 ```
 
 The workflow fails rather than publishing an unsigned or unnotarized archive.
+After it succeeds, verify that the GitHub release contains:
+
+- `MagnetBridge.zip`
+- `MagnetBridge.zip.sha256`
+- `magnet-bridge.rb`
+
+Do not move or replace a published version tag. Fixes belong in a new patch
+release.
 
 ## Local release
 
@@ -40,7 +49,7 @@ xcrun notarytool store-credentials magnetbridge-notary \
 Then run:
 
 ```sh
-VERSION=0.1.0 \
+VERSION=0.3.1 \
 SIGNING_IDENTITY="Developer ID Application: Name (TEAMID)" \
 NOTARY_PROFILE=magnetbridge-notary \
 scripts/release.sh
@@ -49,3 +58,17 @@ scripts/release.sh
 The script verifies both executable architectures, code-signing integrity,
 notarization, stapling, and Gatekeeper assessment before writing anything to
 `release/`.
+
+## Homebrew tap
+
+With `HOMEBREW_TAP_TOKEN` configured, the release workflow copies the generated
+Cask to `decyrus/homebrew-tap` and commits it automatically. Test the published
+Cask:
+
+```sh
+brew install --cask decyrus/tap/magnet-bridge
+brew uninstall --cask magnet-bridge
+```
+
+The automation design and required repository credential are documented in
+[Homebrew distribution](Homebrew.md).
