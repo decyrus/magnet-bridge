@@ -13,7 +13,7 @@ enum CLIApplication {
     do {
       switch command {
       case "configure":
-        try await configure()
+        try await configure(Array(arguments.dropFirst()))
       case "test":
         try await testConnection()
       case "config":
@@ -27,7 +27,7 @@ enum CLIApplication {
       }
       return 0
     } catch {
-      writeError("Error: \(error.localizedDescription)")
+      TerminalUI.failure(error.localizedDescription)
       return 1
     }
   }
@@ -62,38 +62,78 @@ enum CLIApplication {
     return version
   }
 
-  private static func configure() async throws {
+  private static func configure(_ arguments: [String]) async throws {
     guard isatty(STDIN_FILENO) != 0 else {
       throw CLIError("The configuration wizard requires an interactive terminal.")
     }
+    let usesAdvancedEndpoints: Bool
+    switch arguments {
+    case []:
+      usesAdvancedEndpoints = false
+    case ["--advanced"]:
+      usesAdvancedEndpoints = true
+    default:
+      throw CLIError("Usage: magnetbridge configure [--advanced]")
+    }
 
     var settings = settingsStore.load()
-    print("MagnetBridge Configuration")
-    print("==========================")
-    print("Press Return to keep the value shown in brackets.\n")
+    TerminalUI.banner(version: version)
+    TerminalUI.heading("Configuration")
+    TerminalUI.note("Press Return to keep the value shown in brackets.")
 
-    settings.rpcURL = prompt("Transmission RPC URL", default: settings.rpcURL)
-    settings.webUIURL = prompt("Transmission Web UI URL", default: settings.webUIURL)
-    settings.username = prompt("Username", default: settings.username)
+    TerminalUI.section("🌐", "Transmission server")
+    if usesAdvancedEndpoints {
+      settings.rpcURL = prompt("Transmission RPC URL", default: settings.rpcURL)
+      settings.webUIURL = prompt("Transmission Web UI URL", default: settings.webUIURL)
+    } else {
+      TerminalUI.note("Standard RPC and Web UI paths are added automatically.")
+      let defaultAddress =
+        TransmissionEndpointResolver.serverAddress(fromRPCURL: settings.rpcURL)
+        ?? "http://localhost:9091"
+      let address = prompt(
+        "Transmission server address",
+        default: defaultAddress
+      )
+      let endpoints = try standardEndpoints(for: address)
+      settings.rpcURL = endpoints.rpcURL
+      settings.webUIURL = endpoints.webUIURL
+    }
+
+    TerminalUI.section("🔐", "Basic Authentication")
+    settings.username = prompt(
+      "Basic Auth username (leave empty to disable)",
+      default: settings.username
+    )
 
     let hasPassword = (try passwordStore.readPassword())?.isEmpty == false
     var passwordUpdate: String?
-    if promptBoolean(
-      hasPassword ? "Replace the saved password?" : "Save a Transmission password?",
-      default: !hasPassword
-    ) {
-      passwordUpdate = readSecret("Transmission password: ")
+    if settings.username.isEmpty, hasPassword {
+      if promptBoolean("Remove the saved Basic Auth password?", default: true) {
+        passwordUpdate = ""
+      }
+    } else if !settings.username.isEmpty,
+      promptBoolean(
+        hasPassword ? "Replace the saved password?" : "Save a Transmission password?",
+        default: !hasPassword
+      )
+    {
+      passwordUpdate = readSecret("Transmission password")
     }
 
+    TerminalUI.section("⚙️", "Behavior")
     settings.timeout = promptTimeout(default: settings.timeout)
     settings.startMode = promptStartMode(default: settings.startMode)
     settings.opensWebUI = promptBoolean(
       "Open the Web UI after adding a torrent?",
       default: settings.opensWebUI
     )
+
+    TerminalUI.section("🌍", "Browser")
     settings.browser = promptBrowser(default: settings.browser)
 
     if URL(string: settings.rpcURL)?.scheme?.lowercased() == "http" {
+      TerminalUI.section("⚠️", "Transport security")
+      TerminalUI.warning("Basic Auth over HTTP is not encrypted.")
       settings.hasAcknowledgedInsecureHTTP = promptBoolean(
         "Allow unencrypted HTTP for Transmission RPC?",
         default: settings.hasAcknowledgedInsecureHTTP
@@ -111,7 +151,8 @@ enum CLIApplication {
         try passwordStore.savePassword(passwordUpdate)
       }
     }
-    print("\nConfiguration saved.")
+    TerminalUI.line("")
+    TerminalUI.success("Configuration saved")
 
     if promptBoolean("Test the connection now?", default: true) {
       try await testConnection()
@@ -124,33 +165,50 @@ enum CLIApplication {
     }
     switch subcommand {
     case "show":
-      try showConfiguration()
+      try showConfiguration(Array(arguments.dropFirst()))
     case "set":
       try setConfiguration(Array(arguments.dropFirst()))
     case "reset":
       try settingsStore.save(.defaults)
       try passwordStore.deletePassword()
-      print("Configuration and saved password reset.")
+      TerminalUI.success("Configuration and saved password reset")
     case "unset-password":
       try passwordStore.deletePassword()
-      print("Saved password removed.")
+      TerminalUI.success("Saved password removed")
     default:
       throw CLIError("Unknown config command: \(subcommand)")
     }
   }
 
-  private static func showConfiguration() throws {
+  private static func showConfiguration(_ arguments: [String]) throws {
+    let showsAdvancedEndpoints: Bool
+    switch arguments {
+    case []:
+      showsAdvancedEndpoints = false
+    case ["--advanced"]:
+      showsAdvancedEndpoints = true
+    default:
+      throw CLIError("Usage: magnetbridge config show [--advanced]")
+    }
+
     let settings = settingsStore.load()
     let hasPassword = (try passwordStore.readPassword())?.isEmpty == false
-    print("rpc-url: \(settings.rpcURL)")
-    print("web-ui-url: \(settings.webUIURL)")
-    print("username: \(settings.username)")
-    print("password: \(hasPassword ? "configured" : "not configured")")
-    print("browser: \(settings.browser.bundleIdentifier ?? "system")")
-    print("timeout: \(Int(settings.timeout))")
-    print("open-web-ui: \(settings.opensWebUI)")
-    print("start-mode: \(settings.startMode.rawValue)")
-    print("allow-http: \(settings.hasAcknowledgedInsecureHTTP)")
+    TerminalUI.banner(version: version)
+    TerminalUI.heading("Configuration")
+    if let address = TransmissionEndpointResolver.serverAddress(fromRPCURL: settings.rpcURL) {
+      TerminalUI.keyValue("server", address)
+    }
+    if showsAdvancedEndpoints {
+      TerminalUI.keyValue("rpc-url", settings.rpcURL)
+      TerminalUI.keyValue("web-ui-url", settings.webUIURL)
+    }
+    TerminalUI.keyValue("username", settings.username.isEmpty ? "disabled" : settings.username)
+    TerminalUI.keyValue("password", hasPassword ? "configured" : "not configured")
+    TerminalUI.keyValue("browser", settings.browser.bundleIdentifier ?? "system")
+    TerminalUI.keyValue("timeout", "\(Int(settings.timeout)) seconds")
+    TerminalUI.keyValue("open-web-ui", "\(settings.opensWebUI)")
+    TerminalUI.keyValue("start-mode", settings.startMode.rawValue)
+    TerminalUI.keyValue("allow-http", "\(settings.hasAcknowledgedInsecureHTTP)")
   }
 
   private static func setConfiguration(_ arguments: [String]) throws {
@@ -159,13 +217,13 @@ enum CLIApplication {
     }
 
     if key == "password" {
-      let password = readSecret("Transmission password: ")
+      let password = readSecret("Transmission password")
       if password.isEmpty {
         try passwordStore.deletePassword()
       } else {
         try passwordStore.savePassword(password)
       }
-      print("Password updated.")
+      TerminalUI.success("Password updated")
       return
     }
 
@@ -176,6 +234,10 @@ enum CLIApplication {
     var settings = settingsStore.load()
 
     switch key {
+    case "server":
+      let endpoints = try standardEndpoints(for: value)
+      settings.rpcURL = endpoints.rpcURL
+      settings.webUIURL = endpoints.webUIURL
     case "rpc-url":
       settings.rpcURL = value
     case "web-ui-url":
@@ -204,7 +266,7 @@ enum CLIApplication {
 
     try validate(settings)
     try settingsStore.save(settings)
-    print("\(key) updated.")
+    TerminalUI.success("\(key) updated")
   }
 
   private static func testConnection() async throws {
@@ -222,8 +284,9 @@ enum CLIApplication {
         allowsInsecureHTTP: settings.hasAcknowledgedInsecureHTTP
       )
     )
+    TerminalUI.info("Testing the Transmission connection…")
     let info = try await client.testConnection()
-    print(
+    TerminalUI.success(
       "Connected to Transmission \(info.version), RPC \(info.protocolVersion ?? "unknown") (\(info.protocolKind == .jsonRPC2 ? "JSON-RPC 2.0" : "legacy")."
     )
   }
@@ -253,21 +316,23 @@ enum CLIApplication {
   }
 
   private static func prompt(_ label: String, default defaultValue: String) -> String {
-    write("\(label) [\(defaultValue)]: ")
+    TerminalUI.write(TerminalUI.prompt(label, default: defaultValue))
     let value = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     return value.isEmpty ? defaultValue : value
   }
 
   private static func promptBoolean(_ label: String, default defaultValue: Bool) -> Bool {
     while true {
-      write("\(label) [\(defaultValue ? "Y/n" : "y/N")]: ")
+      TerminalUI.write(
+        TerminalUI.prompt(label, default: defaultValue ? "Y/n" : "y/N")
+      )
       let value =
         readLine()?.trimmingCharacters(in: .whitespacesAndNewlines)
         .lowercased() ?? ""
       if value.isEmpty { return defaultValue }
       if ["y", "yes", "true", "1"].contains(value) { return true }
       if ["n", "no", "false", "0"].contains(value) { return false }
-      print("Enter yes or no.")
+      TerminalUI.warning("Enter yes or no.")
     }
   }
 
@@ -277,7 +342,7 @@ enum CLIApplication {
       if let timeout = TimeInterval(value), (3...60).contains(timeout) {
         return timeout
       }
-      print("Enter a number between 3 and 60.")
+      TerminalUI.warning("Enter a number between 3 and 60.")
     }
   }
 
@@ -292,7 +357,7 @@ enum CLIApplication {
       if let mode = TorrentStartMode(rawValue: value.lowercased()) {
         return mode
       }
-      print("Enter immediately or paused.")
+      TerminalUI.warning("Enter immediately or paused.")
     }
   }
 
@@ -300,9 +365,9 @@ enum CLIApplication {
     -> BrowserSelection
   {
     let browsers = BrowserLauncher().installedBrowsers()
-    print("\nAvailable browsers:")
+    TerminalUI.note("Available browsers:")
     for (index, browser) in browsers.enumerated() {
-      print("  \(index + 1). \(browser.displayName)")
+      TerminalUI.line("  \(TerminalUI.choiceNumber(index + 1)) \(browser.displayName)")
     }
     while true {
       let selected = prompt(
@@ -314,7 +379,7 @@ enum CLIApplication {
       if let index = Int(selected), browsers.indices.contains(index - 1) {
         return browsers[index - 1]
       }
-      print("Enter one of the listed numbers.")
+      TerminalUI.warning("Enter one of the listed numbers.")
     }
   }
 
@@ -349,38 +414,45 @@ enum CLIApplication {
     }
   }
 
+  private static func standardEndpoints(for address: String) throws
+    -> TransmissionEndpoints
+  {
+    do {
+      return try TransmissionEndpointResolver.resolve(serverAddress: address)
+    } catch {
+      throw CLIError(
+        "Enter only an HTTP or HTTPS server address, for example "
+          + "https://transmission.example:9091. Use --advanced for custom paths."
+      )
+    }
+  }
+
   private static func readSecret(_ prompt: String) -> String {
-    guard let pointer = getpass(prompt) else { return "" }
+    guard let pointer = getpass(TerminalUI.secretPrompt(prompt)) else { return "" }
     return String(cString: pointer)
   }
 
-  private static func write(_ value: String) {
-    FileHandle.standardOutput.write(Data(value.utf8))
-  }
-
-  private static func writeError(_ value: String) {
-    FileHandle.standardError.write(Data("\(value)\n".utf8))
-  }
-
   private static func printHelp() {
-    print(
-      """
-      MagnetBridge \(version)
-
-      Usage:
-        magnetbridge configure
-        magnetbridge test
-        magnetbridge config show
-        magnetbridge config set <key> <value>
-        magnetbridge config unset-password
-        magnetbridge config reset
-        magnetbridge version
-
-      Configuration keys:
-        rpc-url, web-ui-url, username, password, browser, timeout,
-        open-web-ui, start-mode, allow-http
-      """
+    TerminalUI.banner(version: version)
+    TerminalUI.heading("Usage")
+    TerminalUI.line(
+      "  \(TerminalUI.command("magnetbridge configure")) \(TerminalUI.muted("[--advanced]"))"
     )
+    TerminalUI.line("  \(TerminalUI.command("magnetbridge test"))")
+    TerminalUI.line(
+      "  \(TerminalUI.command("magnetbridge config show")) \(TerminalUI.muted("[--advanced]"))"
+    )
+    TerminalUI.line(
+      "  \(TerminalUI.command("magnetbridge config set")) \(TerminalUI.muted("<key> <value>"))"
+    )
+    TerminalUI.line("  \(TerminalUI.command("magnetbridge config unset-password"))")
+    TerminalUI.line("  \(TerminalUI.command("magnetbridge config reset"))")
+    TerminalUI.line("  \(TerminalUI.command("magnetbridge version"))")
+    TerminalUI.line("")
+    TerminalUI.heading("Configuration keys")
+    TerminalUI.line("  server, username, password, browser, timeout,")
+    TerminalUI.line("  open-web-ui, start-mode, allow-http")
+    TerminalUI.line("")
   }
 }
 

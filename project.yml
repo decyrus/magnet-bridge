@@ -12,6 +12,7 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     CLANG_ENABLE_MODULES: YES
     ENABLE_STRICT_OBJC_MSGSEND: YES
+    ENABLE_CODE_COVERAGE: NO
     SWIFT_STRICT_CONCURRENCY: complete
   configs:
     Debug:
@@ -54,7 +55,7 @@ targets:
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_STYLE: Automatic
         CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 0.2.0
+        MARKETING_VERSION: 0.2.1
 
   MagnetBridgeCoreTests:
     type: bundle.unit-test
@@ -77,7 +78,6 @@ schemes:
         MagnetBridgeCore: all
         MagnetBridgeCoreTests: [test]
     test:
-      gatherCoverageData: true
       targets:
         - name: MagnetBridgeCoreTests
     run:

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00E7657C30CCB7D2C9AEDD76 /* TerminalUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BCACD1B022FC79BC91FE008 /* TerminalUI.swift */; };
 		0B2DFA97A38B7BFF005F421D /* MagnetValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 518F02CAD405542D27AECC91 /* MagnetValidatorTests.swift */; };
 		0FF313994562367FD1A97BA6 /* URLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72F0FFEE6D12F6AFDF6EFE5A /* URLHandler.swift */; };
 		2C5665B573B2B6BE13CBDF20 /* TransmissionClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AAD23E8EF2598112B18D4D /* TransmissionClientTests.swift */; };
@@ -15,6 +16,7 @@
 		4A1219EA5D92D69CB5AF1417 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5397CF20598960C1BB57152 /* KeychainStore.swift */; };
 		4B511D6E7E98DDE834F5BBAC /* MagnetValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5C8DDB459A342C3B7B1408 /* MagnetValidator.swift */; };
 		5E842EAC0B1A8B8F894EAD60 /* URLHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6D90747306D5B8051692852 /* URLHandlerTests.swift */; };
+		69D01B4A4737E1243E7FF5D2 /* TransmissionEndpointResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F43F0DD446CB239FAA6C02C /* TransmissionEndpointResolverTests.swift */; };
 		6D2361912E50FD0024398B75 /* CLIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD78EA4C37A603ACA53BF3A4 /* CLIApplication.swift */; };
 		72AA7FFB4DEED59A3A22A812 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207F542684650B2757E33225 /* SettingsStore.swift */; };
 		76A3D0BE37A172E0D7C5B2E0 /* BrowserLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F216E8DC2C05A86BB92DB92 /* BrowserLauncher.swift */; };
@@ -26,6 +28,7 @@
 		C1BEDDD84CD62977BF828EA2 /* SecretRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA96922BD475CA5246B49F45 /* SecretRedactor.swift */; };
 		CAAE366E8828C279B2904DEC /* RPCAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100B05F73BB423DEB882F85 /* RPCAdapterTests.swift */; };
 		D2A738B74B6D4A895F78F26A /* DiagnosticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8E1194B68162812527FFAC /* DiagnosticsService.swift */; };
+		E0FE3F5A28FEFB7077ACD636 /* TransmissionEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86914ADA572C8F27036E1A8 /* TransmissionEndpoints.swift */; };
 		E20EA4DE31C01B4BE77D10BB /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0D72A2DAF979D81A54B06C /* NotificationService.swift */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +50,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0BCACD1B022FC79BC91FE008 /* TerminalUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalUI.swift; sourceTree = "<group>"; };
 		12244A060C5375B61491A4D2 /* SecurityAndStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityAndStoreTests.swift; sourceTree = "<group>"; };
 		17D2A3BA362F0D21A83A1FAF /* RPCAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCAdapters.swift; sourceTree = "<group>"; };
 		207F542684650B2757E33225 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
@@ -58,8 +62,10 @@
 		7A56B290B630FE79F5561A74 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		7AA6F72B46A1565E4DA5A909 /* MagnetBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagnetBridgeApp.swift; sourceTree = "<group>"; };
 		8DD4400A5B219ACC7C5CCD9B /* MagnetBridgeCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MagnetBridgeCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8F43F0DD446CB239FAA6C02C /* TransmissionEndpointResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionEndpointResolverTests.swift; sourceTree = "<group>"; };
 		9A0D72A2DAF979D81A54B06C /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		B100B05F73BB423DEB882F85 /* RPCAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCAdapterTests.swift; sourceTree = "<group>"; };
+		B86914ADA572C8F27036E1A8 /* TransmissionEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionEndpoints.swift; sourceTree = "<group>"; };
 		BA96922BD475CA5246B49F45 /* SecretRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretRedactor.swift; sourceTree = "<group>"; };
 		D5397CF20598960C1BB57152 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		D6D90747306D5B8051692852 /* URLHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLHandlerTests.swift; sourceTree = "<group>"; };
@@ -97,6 +103,7 @@
 				B100B05F73BB423DEB882F85 /* RPCAdapterTests.swift */,
 				12244A060C5375B61491A4D2 /* SecurityAndStoreTests.swift */,
 				50AAD23E8EF2598112B18D4D /* TransmissionClientTests.swift */,
+				8F43F0DD446CB239FAA6C02C /* TransmissionEndpointResolverTests.swift */,
 				D6D90747306D5B8051692852 /* URLHandlerTests.swift */,
 			);
 			name = MagnetBridgeCoreTests;
@@ -108,6 +115,7 @@
 			children = (
 				FD78EA4C37A603ACA53BF3A4 /* CLIApplication.swift */,
 				7AA6F72B46A1565E4DA5A909 /* MagnetBridgeApp.swift */,
+				0BCACD1B022FC79BC91FE008 /* TerminalUI.swift */,
 			);
 			name = MagnetBridgeApp;
 			path = Sources/MagnetBridgeApp;
@@ -136,6 +144,7 @@
 				BA96922BD475CA5246B49F45 /* SecretRedactor.swift */,
 				207F542684650B2757E33225 /* SettingsStore.swift */,
 				DB86095E26092DE0124F62CE /* TransmissionClient.swift */,
+				B86914ADA572C8F27036E1A8 /* TransmissionEndpoints.swift */,
 				72F0FFEE6D12F6AFDF6EFE5A /* URLHandler.swift */,
 			);
 			name = MagnetBridgeCore;
@@ -272,6 +281,7 @@
 			files = (
 				6D2361912E50FD0024398B75 /* CLIApplication.swift in Sources */,
 				A706AE41A445B9FEC52E5028 /* MagnetBridgeApp.swift in Sources */,
+				00E7657C30CCB7D2C9AEDD76 /* TerminalUI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +299,7 @@
 				C1BEDDD84CD62977BF828EA2 /* SecretRedactor.swift in Sources */,
 				72AA7FFB4DEED59A3A22A812 /* SettingsStore.swift in Sources */,
 				32AE9068542A601F4DC6A576 /* TransmissionClient.swift in Sources */,
+				E0FE3F5A28FEFB7077ACD636 /* TransmissionEndpoints.swift in Sources */,
 				0FF313994562367FD1A97BA6 /* URLHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -301,6 +312,7 @@
 				CAAE366E8828C279B2904DEC /* RPCAdapterTests.swift in Sources */,
 				76AEEC70A7EAC346A9EE1B65 /* SecurityAndStoreTests.swift in Sources */,
 				2C5665B573B2B6BE13CBDF20 /* TransmissionClientTests.swift in Sources */,
+				69D01B4A4737E1243E7FF5D2 /* TransmissionEndpointResolverTests.swift in Sources */,
 				5E842EAC0B1A8B8F894EAD60 /* URLHandlerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -398,6 +410,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_CODE_COVERAGE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -471,6 +484,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_CODE_COVERAGE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -514,7 +528,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.2.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -555,7 +569,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.2.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

@@ -83,15 +83,21 @@ Run the interactive wizard after installation:
 magnetbridge configure
 ```
 
-The wizard configures the RPC and Web UI URLs, credentials, timeout, browser,
-and torrent start mode, then offers to test the connection. The password is
-read without terminal echo and stored only in macOS Keychain.
+The wizard asks for one server address, such as
+`https://transmission.example`, and automatically uses the standard
+`/transmission/rpc` and `/transmission/web/` paths. It also configures Basic
+Authentication, timeout, browser, and torrent start mode, then offers to test
+the connection. The password is read without terminal echo and stored only in
+macOS Keychain.
+
+Interactive output uses color, clear sections, and status icons. Colors are
+disabled automatically when output is redirected. Set `NO_COLOR=1` or
+`TERM=dumb` to disable ANSI colors explicitly.
 
 Configuration can also be scripted:
 
 ```sh
-magnetbridge config set rpc-url https://server.example/transmission/rpc
-magnetbridge config set web-ui-url https://server.example/transmission/web/
+magnetbridge config set server https://server.example
 magnetbridge config set username alice
 magnetbridge config set password
 magnetbridge config set timeout 15
@@ -107,11 +113,20 @@ Inspect the current non-secret configuration:
 magnetbridge config show
 ```
 
+Servers with custom RPC or Web UI paths can use the advanced wizard:
+
+```sh
+magnetbridge configure --advanced
+```
+
+The individual `rpc-url` and `web-ui-url` keys also remain available for
+advanced scripted configuration.
+
 For an intentionally unencrypted RPC endpoint, explicitly opt in:
 
 ```sh
 magnetbridge config set allow-http true
-magnetbridge config set rpc-url http://server.example:9091/transmission/rpc
+magnetbridge config set server http://server.example:9091
 ```
 
 For remote servers, prefer HTTPS through a trusted reverse proxy, a VPN, or
