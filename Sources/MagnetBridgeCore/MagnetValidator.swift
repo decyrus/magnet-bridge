@@ -13,6 +13,10 @@ public struct ValidatedMagnet: Equatable, Sendable {
 public struct MagnetValidator: Sendable {
   public static let maximumLength = 32 * 1024
 
+  private static let base32Alphabet = CharacterSet(
+    charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+  )
+
   public init() {}
 
   public func validate(_ url: URL) throws -> ValidatedMagnet {
@@ -45,16 +49,16 @@ public struct MagnetValidator: Sendable {
     if lower.hasPrefix("urn:btih:") {
       let hash = String(value.dropFirst("urn:btih:".count))
       let isHex = hash.count == 40 && hash.allSatisfy(\.isHexDigit)
-      let base32 = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567")
       let isBase32 =
-        hash.count == 32 && hash.uppercased().unicodeScalars.allSatisfy(base32.contains)
+        hash.count == 32
+        && hash.uppercased().unicodeScalars.allSatisfy(Self.base32Alphabet.contains)
       return (isHex || isBase32) ? hash : nil
     }
     if lower.hasPrefix("urn:btmh:") {
       let multihash = String(value.dropFirst("urn:btmh:".count))
-      let allowed = CharacterSet.alphanumerics
       let valid =
-        (6...256).contains(multihash.count) && multihash.unicodeScalars.allSatisfy(allowed.contains)
+        (6...256).contains(multihash.count)
+        && multihash.unicodeScalars.allSatisfy(CharacterSet.alphanumerics.contains)
       return valid ? multihash : nil
     }
     return nil

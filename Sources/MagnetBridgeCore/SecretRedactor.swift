@@ -1,15 +1,19 @@
 import Foundation
 
-public struct SecretRedactor: Sendable {
+/// Unchecked conformance: the only stored property is a compiled
+/// `NSRegularExpression`, which is immutable and documented as thread safe.
+public struct SecretRedactor: @unchecked Sendable {
+  private let magnetPattern = try? NSRegularExpression(
+    pattern: #"(?i)magnet:\?[^\s"'<>\]]+"#
+  )
+
   public init() {}
 
   public func redact(_ text: String, secrets: [String] = []) -> String {
     var redacted = text
-    if let regex = try? NSRegularExpression(
-      pattern: #"(?i)magnet:\?[^\s"'<>\]]+"#
-    ) {
+    if let magnetPattern {
       let range = NSRange(redacted.startIndex..., in: redacted)
-      redacted = regex.stringByReplacingMatches(
+      redacted = magnetPattern.stringByReplacingMatches(
         in: redacted,
         range: range,
         withTemplate: "magnet:[REDACTED]"
