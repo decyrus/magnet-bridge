@@ -216,6 +216,7 @@ enum CLIApplication {
     TerminalUI.keyValue("open-web-ui", "\(settings.opensWebUI)")
     TerminalUI.keyValue("start-mode", settings.startMode.rawValue)
     TerminalUI.keyValue("allow-http", "\(settings.hasAcknowledgedInsecureHTTP)")
+    TerminalUI.keyValue("menu-bar", "\(settings.showsMenuBarIcon)")
   }
 
   private static func setConfiguration(_ arguments: [String]) throws {
@@ -267,6 +268,8 @@ enum CLIApplication {
       settings.startMode = mode
     case "allow-http":
       settings.hasAcknowledgedInsecureHTTP = try parseBoolean(value)
+    case "menu-bar":
+      settings.showsMenuBarIcon = try parseBoolean(value)
     default:
       throw CLIError("Unknown configuration key: \(key)")
     }
@@ -487,7 +490,7 @@ enum CLIApplication {
     TerminalUI.line("")
     TerminalUI.heading("Configuration keys")
     TerminalUI.line("  server, username, password, browser, timeout,")
-    TerminalUI.line("  open-web-ui, start-mode, allow-http")
+    TerminalUI.line("  open-web-ui, start-mode, allow-http, menu-bar")
     TerminalUI.line("")
   }
 }

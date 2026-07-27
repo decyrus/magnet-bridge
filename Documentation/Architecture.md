@@ -1,15 +1,17 @@
 # Architecture
 
-MagnetBridge has a headless macOS application target with an embedded CLI mode
-and a UI-independent `MagnetBridgeCore` target. It creates no application
-windows; configuration is performed exclusively through `magnetbridge`
-commands.
+MagnetBridge has a compact SwiftUI macOS application target, an embedded
+optional CLI mode, and a UI-independent `MagnetBridgeCore` target. `AppModel`
+owns graphical state and asynchronous actions; networking and business rules
+remain outside SwiftUI.
 
 ## Request flow
 
 ```mermaid
 flowchart LR
-    Browser["Browser / open command"] --> URLHandler
+    Browser["Browser / open command"] --> Chooser["Magnet destination chooser"]
+    Chooser --> OtherApp["Another installed magnet client"]
+    Chooser --> URLHandler
     URLHandler --> MagnetValidator
     URLHandler --> SettingsStore
     URLHandler --> KeychainStore
@@ -26,10 +28,13 @@ flowchart LR
 size, and `btih`/`btmh` exact-topic rules. `SettingsStore` persists one profile
 without credentials; `KeychainStore` owns the password.
 
-The same signed executable has two entry paths. With CLI arguments it runs the
-configuration wizard or a command and exits. Without arguments, LaunchServices
-starts the headless application, which receives the `magnet:` Apple Event,
-handles it, posts a system notification, and terminates.
+The same signed executable has two entry paths. With CLI arguments it runs a
+command and exits. Without arguments it starts the GUI. It may run as a menu bar
+accessory or as a regular Dock application according to the saved preference.
+When LaunchServices delivers a `magnet:` Apple Event, the app shows its window
+and offers the configured server plus other installed handlers discovered with
+`NSWorkspace`. Selecting another client uses `NSWorkspace` directly and never a
+shell command.
 
 `TransmissionClient` is an actor. It sends requests through the injectable
 `NetworkSession` interface and caches the CSRF session ID for its lifetime. On
@@ -50,9 +55,10 @@ a successful `TorrentAddOutcome`, never an error.
 
 ## Data boundaries
 
-The complete magnet URL exists only in the incoming event, the in-memory retry
-state, and the outbound RPC body. It is not persisted or logged. The password
-crosses only the Keychain boundary and the transient HTTP Authorization header.
+The complete magnet URL exists only in the incoming event, the in-memory
+destination choice, the in-memory retry state, and the outbound RPC body. It is
+not persisted or logged. The password crosses only the Keychain boundary and
+the transient HTTP Authorization header.
 Diagnostics contain hostnames, not URL paths, query strings, credentials, or
 magnet payloads.
 

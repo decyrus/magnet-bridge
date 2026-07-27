@@ -5,15 +5,19 @@ Transmission running on a local or remote server, then opens Transmission Web
 UI in your chosen browser. Torrent data is downloaded by the server — never by
 the Mac running MagnetBridge.
 
-The headless application is written in Swift 6. It supports the legacy RPC API
-used by Transmission 4.0.x and the JSON-RPC 2.0 API introduced in Transmission
-4.1. Configuration is performed exclusively through its command-line interface.
+The compact Swift 6 and SwiftUI app can stay in the menu bar or behave like a
+regular Dock app. It supports the legacy RPC API used by Transmission 4.0.x and
+the JSON-RPC 2.0 API introduced in Transmission 4.1.
+
+When a magnet link arrives, MagnetBridge asks whether to send it to the
+configured Transmission server or open it in another installed magnet client.
+The complete link is kept in memory only for the duration of that choice.
 
 ## Install
 
 The recommended one-line installer downloads the signed and notarized release,
-verifies its published SHA-256 checksum, installs the app and CLI, and starts
-the interactive configuration wizard:
+verifies its published SHA-256 checksum, installs the app and optional CLI, and
+opens the graphical setup:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/decyrus/magnet-bridge/main/scripts/install.sh | sh
@@ -40,7 +44,7 @@ Cask file:
 ```sh
 curl -fLO https://github.com/decyrus/magnet-bridge/releases/latest/download/magnet-bridge.rb
 brew install --cask ./magnet-bridge.rb
-magnetbridge configure
+open -a MagnetBridge
 ```
 
 ## Uninstall
@@ -77,23 +81,21 @@ defaults delete org.magnetbridge.app 2>/dev/null || true
 
 ## Configure
 
-Run the interactive wizard after installation:
+Open MagnetBridge from Applications. Enter one server address, such as
+`https://transmission.example`; the standard `/transmission/rpc` and
+`/transmission/web/` paths are added automatically. Configure optional Basic
+Authentication, browser, timeout, and torrent start mode, then use **Test
+Connection** and **Save & Make Default**.
 
-```sh
-magnetbridge configure
-```
+The password is never loaded back into the form and is stored only in macOS
+Keychain. Custom RPC and Web UI paths are hidden under **Custom endpoint
+paths**. HTTP requires an explicit warning acknowledgement.
 
-The wizard asks for one server address, such as
-`https://transmission.example`, and automatically uses the standard
-`/transmission/rpc` and `/transmission/web/` paths. It also configures Basic
-Authentication, timeout, browser, and torrent start mode, then offers to test
-the connection. The password is read without terminal echo and stored only in
-macOS Keychain. After saving, the wizard registers MagnetBridge as the default
-handler for `magnet:` links.
+By default MagnetBridge stays available from the menu bar after its window is
+closed. Turn off **Keep MagnetBridge in the menu bar** to use it as a regular
+Dock app that quits when the window closes.
 
-Interactive output uses color, clear sections, and status icons. Colors are
-disabled automatically when output is redirected. Set `NO_COLOR=1` or
-`TERM=dumb` to disable ANSI colors explicitly.
+The CLI remains available for automation and recovery:
 
 Check or repair the system protocol association at any time:
 
@@ -103,7 +105,7 @@ magnetbridge register
 magnetbridge unregister
 ```
 
-Configuration can also be scripted:
+Configuration can be scripted:
 
 ```sh
 magnetbridge config set server https://server.example
@@ -113,6 +115,7 @@ magnetbridge config set timeout 15
 magnetbridge config set start-mode immediately
 magnetbridge config set open-web-ui true
 magnetbridge config set browser system
+magnetbridge config set menu-bar true
 magnetbridge test
 ```
 
@@ -122,9 +125,10 @@ Inspect the current non-secret configuration:
 magnetbridge config show
 ```
 
-Servers with custom RPC or Web UI paths can use the advanced wizard:
+An interactive terminal wizard is also retained:
 
 ```sh
+magnetbridge configure
 magnetbridge configure --advanced
 ```
 
@@ -146,6 +150,9 @@ Test protocol handling with:
 ```sh
 open "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
 ```
+
+MagnetBridge will show a choice between the configured server and other
+installed magnet handlers, such as the local Transmission app.
 
 ## Build
 

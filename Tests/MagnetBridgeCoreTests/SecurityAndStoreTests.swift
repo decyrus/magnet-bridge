@@ -25,6 +25,19 @@ final class SecurityAndStoreTests: XCTestCase {
     XCTAssertFalse(String(decoding: encoded, as: UTF8.self).lowercased().contains("password"))
   }
 
+  func testSettingsFromOlderReleaseEnablesMenuBarByDefault() throws {
+    let currentData = try JSONEncoder().encode(AppSettings.defaults)
+    var object = try XCTUnwrap(
+      JSONSerialization.jsonObject(with: currentData) as? [String: Any]
+    )
+    object.removeValue(forKey: "showsMenuBarIcon")
+    let legacyData = try JSONSerialization.data(withJSONObject: object)
+
+    let decoded = try JSONDecoder().decode(AppSettings.self, from: legacyData)
+
+    XCTAssertTrue(decoded.showsMenuBarIcon)
+  }
+
   func testDiagnosticsContainsHostsButNotFullURLsOrMagnet() {
     var settings = AppSettings.defaults
     settings.rpcURL = "https://user@example.com/private/rpc?token=secret"

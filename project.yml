@@ -50,12 +50,13 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.magnetbridge.app
         PRODUCT_NAME: MagnetBridge
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: Sources/MagnetBridgeApp/Info.plist
         CODE_SIGN_ENTITLEMENTS: Sources/MagnetBridgeApp/MagnetBridge.entitlements
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_STYLE: Automatic
         CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 0.2.1
+        MARKETING_VERSION: 0.3.0
 
   MagnetBridgeCoreTests:
     type: bundle.unit-test

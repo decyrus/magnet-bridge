@@ -93,11 +93,7 @@ case ":${PATH}:" in
         ;;
 esac
 
-if [ -r "/dev/tty" ]; then
-    echo "Starting the configuration wizard…"
-    if ! "$CLI_DESTINATION" configure </dev/tty >/dev/tty 2>/dev/tty; then
-        echo "Configuration was not completed. Run: $CLI_DESTINATION configure" >&2
-    fi
-else
-    echo "Run the configuration wizard: $CLI_DESTINATION configure"
+echo "Opening MagnetBridge…"
+if ! open "$APP_DESTINATION"; then
+    echo "Open $APP_DESTINATION to finish setup." >&2
 fi

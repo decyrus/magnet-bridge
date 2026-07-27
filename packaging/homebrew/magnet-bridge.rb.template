@@ -19,7 +19,7 @@ cask "magnet-bridge" do
   ]
 
   caveats <<~EOS
-    Configure MagnetBridge from a terminal:
-      magnetbridge configure
+    Open MagnetBridge to finish setup:
+      open -a MagnetBridge
   EOS
 end
