@@ -1,12 +1,32 @@
 import Foundation
 
 public struct ValidatedMagnet: Equatable, Sendable {
+  /// Shown when a link carries no usable display name.
+  public static let placeholderDisplayName = "Magnet link"
+
+  /// How long a display name may grow before it is truncated.
+  public static let maximumDisplayNameLength = 120
+
   public let url: URL
   public let infoHashes: [String]
 
   public init(url: URL, infoHashes: [String]) {
     self.url = url
     self.infoHashes = infoHashes
+  }
+
+  /// The link's `dn` parameter when it carries a usable one, truncated so an
+  /// overlong name cannot stretch the interface it is shown in.
+  public var displayName: String {
+    guard
+      let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+      let name = components.queryItems?
+        .first(where: { $0.name.lowercased() == "dn" })?.value,
+      !name.isEmpty
+    else {
+      return Self.placeholderDisplayName
+    }
+    return String(name.prefix(Self.maximumDisplayNameLength))
   }
 }
 

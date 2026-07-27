@@ -54,7 +54,7 @@ final class AppModel {
   var hasStoredPassword = false
   var browserOptions: [BrowserOption]
   var handlerApplications: [HandlerApplication] = []
-  var pendingMagnetURL: URL?
+  var pendingMagnet: ValidatedMagnet?
   var notice: Notice?
   var isBusy = false
   var currentHandler = ""
@@ -79,9 +79,10 @@ final class AppModel {
     self.serverAddress =
       TransmissionEndpointResolver.serverAddress(fromRPCURL: loadedSettings.rpcURL)
       ?? loadedSettings.rpcURL
-    self.usesCustomEndpoints =
-      !loadedSettings.rpcURL.hasSuffix("/transmission/rpc")
-      || !loadedSettings.webUIURL.hasSuffix("/transmission/web/")
+    self.usesCustomEndpoints = !TransmissionEndpointResolver.usesStandardPaths(
+      rpcURL: loadedSettings.rpcURL,
+      webUIURL: loadedSettings.webUIURL
+    )
     self.browserOptions = Self.makeBrowserOptions(
       from: browserLauncher.installedBrowsers(),
       selectedBrowser: loadedSettings.browser
@@ -115,25 +116,21 @@ final class AppModel {
     return URL(string: value)?.scheme?.lowercased() == "http"
   }
 
+  var pendingMagnetURL: URL? {
+    pendingMagnet?.url
+  }
+
   var pendingMagnetName: String {
-    guard
-      let pendingMagnetURL,
-      let components = URLComponents(url: pendingMagnetURL, resolvingAgainstBaseURL: false),
-      let name = components.queryItems?.first(where: { $0.name == "dn" })?.value,
-      !name.isEmpty
-    else {
-      return "Magnet link"
-    }
-    return String(name.prefix(120))
+    pendingMagnet?.displayName ?? ValidatedMagnet.placeholderDisplayName
   }
 
   func receive(_ url: URL) {
     do {
-      pendingMagnetURL = try validator.validate(url).url
+      pendingMagnet = try validator.validate(url)
       handlerApplications = discoverAlternativeHandlers(for: url)
       notice = nil
     } catch {
-      pendingMagnetURL = nil
+      pendingMagnet = nil
       notice = .failure(error.localizedDescription)
     }
   }
@@ -146,11 +143,11 @@ final class AppModel {
     switch result {
     case .added(let torrent):
       notice = .success("Added “\(torrent.name)” to Transmission.")
-      pendingMagnetURL = nil
+      pendingMagnet = nil
       onHandlingFinished?()
     case .duplicate(let torrent):
       notice = .success("“\(torrent.name)” is already in Transmission.")
-      pendingMagnetURL = nil
+      pendingMagnet = nil
       onHandlingFinished?()
     case .failed(let error):
       notice = .failure(error.localizedDescription)
@@ -167,7 +164,7 @@ final class AppModel {
         url,
         withApplicationAt: application.applicationURL
       )
-      pendingMagnetURL = nil
+      pendingMagnet = nil
       notice = .success("Opened in \(application.name).")
       onHandlingFinished?()
     } catch {
@@ -184,7 +181,7 @@ final class AppModel {
   }
 
   func cancelPendingMagnet() {
-    pendingMagnetURL = nil
+    pendingMagnet = nil
     notice = nil
     onHandlingFinished?()
   }

@@ -4,6 +4,7 @@ import XCTest
 
 final class MagnetValidatorTests: XCTestCase {
   private let validator = MagnetValidator()
+  private let hexHash = "0123456789abcdef0123456789abcdef01234567"
 
   func testAcceptsBTIHHex() throws {
     let url = try XCTUnwrap(
@@ -24,6 +25,31 @@ final class MagnetValidatorTests: XCTestCase {
           "magnet:?xt=urn:btmh:12200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
       ))
     XCTAssertNoThrow(try validator.validate(url))
+  }
+
+  func testDisplayNameUsesTheDisplayNameParameter() throws {
+    let url = try XCTUnwrap(
+      URL(string: "magnet:?xt=urn:btih:\(hexHash)&DN=Ubuntu%2024.04"))
+    XCTAssertEqual(try validator.validate(url).displayName, "Ubuntu 24.04")
+  }
+
+  func testDisplayNameFallsBackWhenTheParameterIsMissingOrEmpty() throws {
+    for raw in ["magnet:?xt=urn:btih:\(hexHash)", "magnet:?xt=urn:btih:\(hexHash)&dn="] {
+      let url = try XCTUnwrap(URL(string: raw))
+      XCTAssertEqual(
+        try validator.validate(url).displayName,
+        ValidatedMagnet.placeholderDisplayName
+      )
+    }
+  }
+
+  func testDisplayNameIsTruncated() throws {
+    let name = String(repeating: "a", count: ValidatedMagnet.maximumDisplayNameLength + 50)
+    let url = try XCTUnwrap(URL(string: "magnet:?xt=urn:btih:\(hexHash)&dn=\(name)"))
+    XCTAssertEqual(
+      try validator.validate(url).displayName.count,
+      ValidatedMagnet.maximumDisplayNameLength
+    )
   }
 
   func testRejectsWrongScheme() throws {

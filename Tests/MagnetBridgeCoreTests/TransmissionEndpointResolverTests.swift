@@ -38,6 +38,30 @@ final class TransmissionEndpointResolverTests: XCTestCase {
     }
   }
 
+  func testDetectsStandardAndCustomPaths() throws {
+    let endpoints = try TransmissionEndpointResolver.resolve(
+      serverAddress: "https://example.com:9091"
+    )
+    XCTAssertTrue(
+      TransmissionEndpointResolver.usesStandardPaths(
+        rpcURL: endpoints.rpcURL,
+        webUIURL: endpoints.webUIURL
+      )
+    )
+    XCTAssertFalse(
+      TransmissionEndpointResolver.usesStandardPaths(
+        rpcURL: "https://example.com:9091/custom/rpc",
+        webUIURL: endpoints.webUIURL
+      )
+    )
+    XCTAssertFalse(
+      TransmissionEndpointResolver.usesStandardPaths(
+        rpcURL: endpoints.rpcURL,
+        webUIURL: "https://example.com:9091/custom/web/"
+      )
+    )
+  }
+
   func testExtractsServerAddressFromRPCURL() {
     XCTAssertEqual(
       TransmissionEndpointResolver.serverAddress(

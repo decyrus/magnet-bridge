@@ -13,6 +13,15 @@ public struct TransmissionEndpoints: Equatable, Sendable {
 }
 
 public enum TransmissionEndpointResolver {
+  public static let rpcPath = "/transmission/rpc"
+  public static let webUIPath = "/transmission/web/"
+
+  /// Whether both URLs still end in the standard Transmission paths, meaning
+  /// the server address on its own describes them.
+  public static func usesStandardPaths(rpcURL: String, webUIURL: String) -> Bool {
+    rpcURL.hasSuffix(rpcPath) && webUIURL.hasSuffix(webUIPath)
+  }
+
   public static func resolve(serverAddress rawAddress: String) throws
     -> TransmissionEndpoints
   {
@@ -36,12 +45,12 @@ public enum TransmissionEndpointResolver {
       throw MagnetBridgeError.invalidRPCURL
     }
 
-    components.percentEncodedPath = "/transmission/rpc"
+    components.percentEncodedPath = rpcPath
     guard let rpcURL = components.url?.absoluteString else {
       throw MagnetBridgeError.invalidRPCURL
     }
 
-    components.percentEncodedPath = "/transmission/web/"
+    components.percentEncodedPath = webUIPath
     guard let webUIURL = components.url?.absoluteString else {
       throw MagnetBridgeError.invalidRPCURL
     }
