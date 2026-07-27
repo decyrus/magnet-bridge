@@ -41,10 +41,8 @@ final class AppModel {
     }
   }
 
-  private let settingsStore: SettingsStore
-  private let passwordStore: KeychainStore
-  private let browserLauncher: BrowserLauncher
-  private let notificationService: NotificationService
+  private let settingsStore: any SettingsStoring
+  private let passwordStore: any PasswordStoring
   private let urlHandler: URLHandler
   private let validator = MagnetValidator()
   private let settingsValidator = SettingsValidator()
@@ -68,15 +66,14 @@ final class AppModel {
   var onHandlingFinished: (() -> Void)?
 
   init(
-    settingsStore: SettingsStore = SettingsStore(),
-    passwordStore: KeychainStore = KeychainStore(),
-    browserLauncher: BrowserLauncher = BrowserLauncher(),
-    notificationService: NotificationService = NotificationService()
+    settingsStore: any SettingsStoring = SettingsStore(),
+    passwordStore: any PasswordStoring = KeychainStore(),
+    browserLauncher: any BrowserLaunching = BrowserLauncher(),
+    notificationService: any NotificationServing = NotificationService(),
+    session: any NetworkSession = URLSessionNetworkSession()
   ) {
     self.settingsStore = settingsStore
     self.passwordStore = passwordStore
-    self.browserLauncher = browserLauncher
-    self.notificationService = notificationService
     let loadedSettings = settingsStore.load()
     self.settings = loadedSettings
     self.serverAddress =
@@ -93,7 +90,8 @@ final class AppModel {
       settingsStore: settingsStore,
       passwordStore: passwordStore,
       browserLauncher: browserLauncher,
-      notificationService: notificationService
+      notificationService: notificationService,
+      session: session
     )
     refreshLocalState()
   }
