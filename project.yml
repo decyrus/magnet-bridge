@@ -1,0 +1,86 @@
+name: MagnetBridge
+options:
+  bundleIdPrefix: org.magnetbridge
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "26.0"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    CLANG_ENABLE_MODULES: YES
+    ENABLE_STRICT_OBJC_MSGSEND: YES
+    SWIFT_STRICT_CONCURRENCY: complete
+  configs:
+    Debug:
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+    Release:
+      SWIFT_COMPILATION_MODE: wholemodule
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+
+targets:
+  MagnetBridgeCore:
+    type: library.static
+    platform: macOS
+    sources:
+      - path: Sources/MagnetBridgeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.magnetbridge.core
+        DEFINES_MODULE: YES
+        SKIP_INSTALL: YES
+        CODE_SIGNING_ALLOWED: NO
+
+  MagnetBridge:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/MagnetBridgeApp
+        excludes:
+          - Info.plist
+          - MagnetBridge.entitlements
+    dependencies:
+      - target: MagnetBridgeCore
+    entitlements:
+      path: Sources/MagnetBridgeApp/MagnetBridge.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.magnetbridge.app
+        PRODUCT_NAME: MagnetBridge
+        INFOPLIST_FILE: Sources/MagnetBridgeApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/MagnetBridgeApp/MagnetBridge.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Automatic
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
+
+  MagnetBridgeCoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/MagnetBridgeCoreTests
+    dependencies:
+      - target: MagnetBridgeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.magnetbridge.core-tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+
+schemes:
+  MagnetBridge:
+    build:
+      targets:
+        MagnetBridge: all
+        MagnetBridgeCore: all
+        MagnetBridgeCoreTests: [test]
+    test:
+      gatherCoverageData: true
+      targets:
+        - name: MagnetBridgeCoreTests
+    run:
+      config: Debug
+    archive:
+      config: Release

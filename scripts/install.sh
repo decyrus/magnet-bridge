@@ -1,0 +1,69 @@
+#!/bin/sh
+set -eu
+
+REPOSITORY="decyrus/magnet-bridge"
+ARCHIVE_NAME="MagnetBridge.zip"
+CHECKSUM_NAME="${ARCHIVE_NAME}.sha256"
+REQUESTED_VERSION="${MAGNETBRIDGE_VERSION:-latest}"
+
+if [ "$(uname -s)" != "Darwin" ]; then
+    echo "MagnetBridge requires macOS." >&2
+    exit 1
+fi
+
+case "$REQUESTED_VERSION" in
+    latest)
+        RELEASE_PATH="latest/download"
+        ;;
+    v*)
+        RELEASE_PATH="download/$REQUESTED_VERSION"
+        ;;
+    *)
+        RELEASE_PATH="download/v$REQUESTED_VERSION"
+        ;;
+esac
+
+BASE_URL="https://github.com/$REPOSITORY/releases/$RELEASE_PATH"
+WORK_DIRECTORY="$(mktemp -d "${TMPDIR:-/tmp}/magnetbridge-install.XXXXXX")"
+trap 'rm -rf "$WORK_DIRECTORY"' EXIT HUP INT TERM
+
+echo "Downloading MagnetBridge…"
+curl -fL "$BASE_URL/$ARCHIVE_NAME" -o "$WORK_DIRECTORY/$ARCHIVE_NAME"
+curl -fL "$BASE_URL/$CHECKSUM_NAME" -o "$WORK_DIRECTORY/$CHECKSUM_NAME"
+
+(
+    cd "$WORK_DIRECTORY"
+    shasum -a 256 -c "$CHECKSUM_NAME"
+)
+
+ditto -x -k "$WORK_DIRECTORY/$ARCHIVE_NAME" "$WORK_DIRECTORY/unpacked"
+APP_SOURCE="$WORK_DIRECTORY/unpacked/MagnetBridge.app"
+if [ ! -d "$APP_SOURCE" ]; then
+    echo "The verified archive does not contain MagnetBridge.app." >&2
+    exit 1
+fi
+
+if [ -w "/Applications" ]; then
+    INSTALL_DIRECTORY="/Applications"
+else
+    INSTALL_DIRECTORY="${HOME}/Applications"
+    mkdir -p "$INSTALL_DIRECTORY"
+fi
+
+APP_DESTINATION="$INSTALL_DIRECTORY/MagnetBridge.app"
+BACKUP_DESTINATION="$WORK_DIRECTORY/MagnetBridge.previous.app"
+if [ -e "$APP_DESTINATION" ]; then
+    mv "$APP_DESTINATION" "$BACKUP_DESTINATION"
+fi
+
+if ! ditto "$APP_SOURCE" "$APP_DESTINATION"; then
+    if [ -e "$BACKUP_DESTINATION" ]; then
+        mv "$BACKUP_DESTINATION" "$APP_DESTINATION"
+    fi
+    echo "Installation failed; the previous app was restored." >&2
+    exit 1
+fi
+
+echo "Installed MagnetBridge at $APP_DESTINATION"
+echo "The installer did not remove macOS quarantine or bypass Gatekeeper."
+open "$APP_DESTINATION"

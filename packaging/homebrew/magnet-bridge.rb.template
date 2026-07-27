@@ -1,0 +1,18 @@
+cask "magnet-bridge" do
+  version "__VERSION__"
+  sha256 "__SHA256__"
+
+  url "https://github.com/decyrus/magnet-bridge/releases/download/v#{version}/MagnetBridge.zip"
+  name "MagnetBridge"
+  desc "Send magnet links to a local or remote Transmission server"
+  homepage "https://github.com/decyrus/magnet-bridge"
+
+  depends_on macos: ">= :sonoma"
+
+  app "MagnetBridge.app"
+
+  zap trash: [
+    "~/Library/Preferences/org.magnetbridge.app.plist",
+    "~/Library/Saved Application State/org.magnetbridge.app.savedState",
+  ]
+end

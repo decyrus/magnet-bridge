@@ -1,0 +1,619 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0B2DFA97A38B7BFF005F421D /* MagnetValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 518F02CAD405542D27AECC91 /* MagnetValidatorTests.swift */; };
+		0FF313994562367FD1A97BA6 /* URLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72F0FFEE6D12F6AFDF6EFE5A /* URLHandler.swift */; };
+		100D2CBC8E124514A45239E0 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971292797E8CECCC5CC228D6 /* AppModel.swift */; };
+		1933BB105CF671865A499633 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81A31115DE722A6825CF7FF /* SettingsView.swift */; };
+		2C5665B573B2B6BE13CBDF20 /* TransmissionClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AAD23E8EF2598112B18D4D /* TransmissionClientTests.swift */; };
+		32AE9068542A601F4DC6A576 /* TransmissionClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB86095E26092DE0124F62CE /* TransmissionClient.swift */; };
+		37C068023A28A53B28B313A5 /* libMagnetBridgeCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EB198BDF518A82B8C8FF18C /* libMagnetBridgeCore.a */; };
+		4A1219EA5D92D69CB5AF1417 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5397CF20598960C1BB57152 /* KeychainStore.swift */; };
+		4B511D6E7E98DDE834F5BBAC /* MagnetValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5C8DDB459A342C3B7B1408 /* MagnetValidator.swift */; };
+		5E842EAC0B1A8B8F894EAD60 /* URLHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6D90747306D5B8051692852 /* URLHandlerTests.swift */; };
+		72AA7FFB4DEED59A3A22A812 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207F542684650B2757E33225 /* SettingsStore.swift */; };
+		76A3D0BE37A172E0D7C5B2E0 /* BrowserLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F216E8DC2C05A86BB92DB92 /* BrowserLauncher.swift */; };
+		76AEEC70A7EAC346A9EE1B65 /* SecurityAndStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12244A060C5375B61491A4D2 /* SecurityAndStoreTests.swift */; };
+		9615F1F33ABEEBE63A825AF4 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A56B290B630FE79F5561A74 /* Models.swift */; };
+		9E1C63C309EE05F450FA47A1 /* libMagnetBridgeCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EB198BDF518A82B8C8FF18C /* libMagnetBridgeCore.a */; };
+		A5BF8812326027A623F65F7B /* RPCAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D2A3BA362F0D21A83A1FAF /* RPCAdapters.swift */; };
+		A706AE41A445B9FEC52E5028 /* MagnetBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA6F72B46A1565E4DA5A909 /* MagnetBridgeApp.swift */; };
+		C1BEDDD84CD62977BF828EA2 /* SecretRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA96922BD475CA5246B49F45 /* SecretRedactor.swift */; };
+		CAAE366E8828C279B2904DEC /* RPCAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100B05F73BB423DEB882F85 /* RPCAdapterTests.swift */; };
+		D2A738B74B6D4A895F78F26A /* DiagnosticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8E1194B68162812527FFAC /* DiagnosticsService.swift */; };
+		DE11A23E6575CE28B424DA13 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7052AC260513F39F895D8C9 /* ContentView.swift */; };
+		E20EA4DE31C01B4BE77D10BB /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0D72A2DAF979D81A54B06C /* NotificationService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4E133342E1C2A0E31D2662B4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B78C31FBA3812E47254899CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D60351A579B0EAF94A86EEFD;
+			remoteInfo = MagnetBridgeCore;
+		};
+		D22D85A7322D876289C3A55E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B78C31FBA3812E47254899CC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D60351A579B0EAF94A86EEFD;
+			remoteInfo = MagnetBridgeCore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		12244A060C5375B61491A4D2 /* SecurityAndStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityAndStoreTests.swift; sourceTree = "<group>"; };
+		17D2A3BA362F0D21A83A1FAF /* RPCAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCAdapters.swift; sourceTree = "<group>"; };
+		207F542684650B2757E33225 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		3EB198BDF518A82B8C8FF18C /* libMagnetBridgeCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMagnetBridgeCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		50AAD23E8EF2598112B18D4D /* TransmissionClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionClientTests.swift; sourceTree = "<group>"; };
+		518F02CAD405542D27AECC91 /* MagnetValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagnetValidatorTests.swift; sourceTree = "<group>"; };
+		5F216E8DC2C05A86BB92DB92 /* BrowserLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLauncher.swift; sourceTree = "<group>"; };
+		72F0FFEE6D12F6AFDF6EFE5A /* URLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLHandler.swift; sourceTree = "<group>"; };
+		7A56B290B630FE79F5561A74 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		7AA6F72B46A1565E4DA5A909 /* MagnetBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagnetBridgeApp.swift; sourceTree = "<group>"; };
+		8DD4400A5B219ACC7C5CCD9B /* MagnetBridgeCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MagnetBridgeCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		971292797E8CECCC5CC228D6 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		9A0D72A2DAF979D81A54B06C /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		B100B05F73BB423DEB882F85 /* RPCAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCAdapterTests.swift; sourceTree = "<group>"; };
+		B81A31115DE722A6825CF7FF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		BA96922BD475CA5246B49F45 /* SecretRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretRedactor.swift; sourceTree = "<group>"; };
+		C7052AC260513F39F895D8C9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D5397CF20598960C1BB57152 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		D6D90747306D5B8051692852 /* URLHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLHandlerTests.swift; sourceTree = "<group>"; };
+		DB86095E26092DE0124F62CE /* TransmissionClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionClient.swift; sourceTree = "<group>"; };
+		DF5C8DDB459A342C3B7B1408 /* MagnetValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagnetValidator.swift; sourceTree = "<group>"; };
+		EA7DE93EC3FD275B1F524C98 /* MagnetBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MagnetBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF8E1194B68162812527FFAC /* DiagnosticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		32A99D98C98580B54E9893F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				37C068023A28A53B28B313A5 /* libMagnetBridgeCore.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		69DD29CC04FA7F85A0606886 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E1C63C309EE05F450FA47A1 /* libMagnetBridgeCore.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		04ACC28F28DFAB245F51C9A8 /* MagnetBridgeCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				518F02CAD405542D27AECC91 /* MagnetValidatorTests.swift */,
+				B100B05F73BB423DEB882F85 /* RPCAdapterTests.swift */,
+				12244A060C5375B61491A4D2 /* SecurityAndStoreTests.swift */,
+				50AAD23E8EF2598112B18D4D /* TransmissionClientTests.swift */,
+				D6D90747306D5B8051692852 /* URLHandlerTests.swift */,
+			);
+			name = MagnetBridgeCoreTests;
+			path = Tests/MagnetBridgeCoreTests;
+			sourceTree = "<group>";
+		};
+		3D9D6C48D7A6F73A2E7423F7 /* MagnetBridgeApp */ = {
+			isa = PBXGroup;
+			children = (
+				971292797E8CECCC5CC228D6 /* AppModel.swift */,
+				C7052AC260513F39F895D8C9 /* ContentView.swift */,
+				7AA6F72B46A1565E4DA5A909 /* MagnetBridgeApp.swift */,
+				B81A31115DE722A6825CF7FF /* SettingsView.swift */,
+			);
+			name = MagnetBridgeApp;
+			path = Sources/MagnetBridgeApp;
+			sourceTree = "<group>";
+		};
+		40A248FD564FCF1CFE9E823F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3EB198BDF518A82B8C8FF18C /* libMagnetBridgeCore.a */,
+				EA7DE93EC3FD275B1F524C98 /* MagnetBridge.app */,
+				8DD4400A5B219ACC7C5CCD9B /* MagnetBridgeCoreTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9576BBE659E0F0D0E5CCB2ED /* MagnetBridgeCore */ = {
+			isa = PBXGroup;
+			children = (
+				5F216E8DC2C05A86BB92DB92 /* BrowserLauncher.swift */,
+				FF8E1194B68162812527FFAC /* DiagnosticsService.swift */,
+				D5397CF20598960C1BB57152 /* KeychainStore.swift */,
+				DF5C8DDB459A342C3B7B1408 /* MagnetValidator.swift */,
+				7A56B290B630FE79F5561A74 /* Models.swift */,
+				9A0D72A2DAF979D81A54B06C /* NotificationService.swift */,
+				17D2A3BA362F0D21A83A1FAF /* RPCAdapters.swift */,
+				BA96922BD475CA5246B49F45 /* SecretRedactor.swift */,
+				207F542684650B2757E33225 /* SettingsStore.swift */,
+				DB86095E26092DE0124F62CE /* TransmissionClient.swift */,
+				72F0FFEE6D12F6AFDF6EFE5A /* URLHandler.swift */,
+			);
+			name = MagnetBridgeCore;
+			path = Sources/MagnetBridgeCore;
+			sourceTree = "<group>";
+		};
+		DE1B9D238BBE30DBF96785AC = {
+			isa = PBXGroup;
+			children = (
+				3D9D6C48D7A6F73A2E7423F7 /* MagnetBridgeApp */,
+				9576BBE659E0F0D0E5CCB2ED /* MagnetBridgeCore */,
+				04ACC28F28DFAB245F51C9A8 /* MagnetBridgeCoreTests */,
+				40A248FD564FCF1CFE9E823F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0CF395FFF2E22ADFBDF175A0 /* MagnetBridgeCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7E2A488030CD0FFBFD7D4A4E /* Build configuration list for PBXNativeTarget "MagnetBridgeCoreTests" */;
+			buildPhases = (
+				DAA0239A56F11162E5AC4729 /* Sources */,
+				69DD29CC04FA7F85A0606886 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0EE1F1C506EEB7A4FF943031 /* PBXTargetDependency */,
+			);
+			name = MagnetBridgeCoreTests;
+			packageProductDependencies = (
+			);
+			productName = MagnetBridgeCoreTests;
+			productReference = 8DD4400A5B219ACC7C5CCD9B /* MagnetBridgeCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		27461665BEDD4AAD84ED4584 /* MagnetBridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B597DBF2A6D2295DECB92B46 /* Build configuration list for PBXNativeTarget "MagnetBridge" */;
+			buildPhases = (
+				5E9825F3DD965EDB395651A2 /* Sources */,
+				32A99D98C98580B54E9893F9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				07D8CEC89E0C064E22815096 /* PBXTargetDependency */,
+			);
+			name = MagnetBridge;
+			packageProductDependencies = (
+			);
+			productName = MagnetBridge;
+			productReference = EA7DE93EC3FD275B1F524C98 /* MagnetBridge.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D60351A579B0EAF94A86EEFD /* MagnetBridgeCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FBA8E5DA792410B646E0401E /* Build configuration list for PBXNativeTarget "MagnetBridgeCore" */;
+			buildPhases = (
+				CD9B1FB5205D94370333DE82 /* Sources */,
+				497567CAB3A6808B54218333 /* Copy Swift Objective-C Interface Header */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MagnetBridgeCore;
+			packageProductDependencies = (
+			);
+			productName = MagnetBridgeCore;
+			productReference = 3EB198BDF518A82B8C8FF18C /* libMagnetBridgeCore.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B78C31FBA3812E47254899CC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					27461665BEDD4AAD84ED4584 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = F0022ECFEBFA549C7EBC1A12 /* Build configuration list for PBXProject "MagnetBridge" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = DE1B9D238BBE30DBF96785AC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 40A248FD564FCF1CFE9E823F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				27461665BEDD4AAD84ED4584 /* MagnetBridge */,
+				D60351A579B0EAF94A86EEFD /* MagnetBridgeCore */,
+				0CF395FFF2E22ADFBDF175A0 /* MagnetBridgeCoreTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		497567CAB3A6808B54218333 /* Copy Swift Objective-C Interface Header */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(DERIVED_SOURCES_DIR)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)",
+			);
+			name = "Copy Swift Objective-C Interface Header";
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/include/$(PRODUCT_MODULE_NAME)/$(SWIFT_OBJC_INTERFACE_HEADER_NAME)",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ditto \"${SCRIPT_INPUT_FILE_0}\" \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5E9825F3DD965EDB395651A2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				100D2CBC8E124514A45239E0 /* AppModel.swift in Sources */,
+				DE11A23E6575CE28B424DA13 /* ContentView.swift in Sources */,
+				A706AE41A445B9FEC52E5028 /* MagnetBridgeApp.swift in Sources */,
+				1933BB105CF671865A499633 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CD9B1FB5205D94370333DE82 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				76A3D0BE37A172E0D7C5B2E0 /* BrowserLauncher.swift in Sources */,
+				D2A738B74B6D4A895F78F26A /* DiagnosticsService.swift in Sources */,
+				4A1219EA5D92D69CB5AF1417 /* KeychainStore.swift in Sources */,
+				4B511D6E7E98DDE834F5BBAC /* MagnetValidator.swift in Sources */,
+				9615F1F33ABEEBE63A825AF4 /* Models.swift in Sources */,
+				E20EA4DE31C01B4BE77D10BB /* NotificationService.swift in Sources */,
+				A5BF8812326027A623F65F7B /* RPCAdapters.swift in Sources */,
+				C1BEDDD84CD62977BF828EA2 /* SecretRedactor.swift in Sources */,
+				72AA7FFB4DEED59A3A22A812 /* SettingsStore.swift in Sources */,
+				32AE9068542A601F4DC6A576 /* TransmissionClient.swift in Sources */,
+				0FF313994562367FD1A97BA6 /* URLHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DAA0239A56F11162E5AC4729 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0B2DFA97A38B7BFF005F421D /* MagnetValidatorTests.swift in Sources */,
+				CAAE366E8828C279B2904DEC /* RPCAdapterTests.swift in Sources */,
+				76AEEC70A7EAC346A9EE1B65 /* SecurityAndStoreTests.swift in Sources */,
+				2C5665B573B2B6BE13CBDF20 /* TransmissionClientTests.swift in Sources */,
+				5E842EAC0B1A8B8F894EAD60 /* URLHandlerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		07D8CEC89E0C064E22815096 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D60351A579B0EAF94A86EEFD /* MagnetBridgeCore */;
+			targetProxy = 4E133342E1C2A0E31D2662B4 /* PBXContainerItemProxy */;
+		};
+		0EE1F1C506EEB7A4FF943031 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D60351A579B0EAF94A86EEFD /* MagnetBridgeCore */;
+			targetProxy = D22D85A7322D876289C3A55E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2E78211758F4E8603A45B4E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.magnetbridge.core-tests";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		3A450602A70E018397703F83 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.magnetbridge.core-tests";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		51A83E8CB52867AEC8D3AAA4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		867BE1E156621D19F86D693C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.magnetbridge.core;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		8DD376183E907F824A922BC2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		92B0DDE5A9D07955BCC39A5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/MagnetBridgeApp/MagnetBridge.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Sources/MagnetBridgeApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.magnetbridge.app;
+				PRODUCT_NAME = MagnetBridge;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B36F88DEFC26174C0AB09D85 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.magnetbridge.core;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		FE1DB7C6EDDCCBBA7323245C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/MagnetBridgeApp/MagnetBridge.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Sources/MagnetBridgeApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.magnetbridge.app;
+				PRODUCT_NAME = MagnetBridge;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7E2A488030CD0FFBFD7D4A4E /* Build configuration list for PBXNativeTarget "MagnetBridgeCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2E78211758F4E8603A45B4E9 /* Debug */,
+				3A450602A70E018397703F83 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B597DBF2A6D2295DECB92B46 /* Build configuration list for PBXNativeTarget "MagnetBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FE1DB7C6EDDCCBBA7323245C /* Debug */,
+				92B0DDE5A9D07955BCC39A5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F0022ECFEBFA549C7EBC1A12 /* Build configuration list for PBXProject "MagnetBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8DD376183E907F824A922BC2 /* Debug */,
+				51A83E8CB52867AEC8D3AAA4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FBA8E5DA792410B646E0401E /* Build configuration list for PBXNativeTarget "MagnetBridgeCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B36F88DEFC26174C0AB09D85 /* Debug */,
+				867BE1E156621D19F86D693C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B78C31FBA3812E47254899CC /* Project object */;
+}

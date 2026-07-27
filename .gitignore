@@ -60,3 +60,13 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# MagnetBridge local build and release artifacts
+.DS_Store
+build/
+DerivedData/
+*.xcarchive
+*.dmg
+*.zip
+*.sha256
+*.xcuserstate
