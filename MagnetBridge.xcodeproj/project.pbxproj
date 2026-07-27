@@ -8,9 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		00E7657C30CCB7D2C9AEDD76 /* TerminalUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BCACD1B022FC79BC91FE008 /* TerminalUI.swift */; };
+		046E19661A223D3909091F08 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = EBEF9CC5CC07758486EDF60B /* Sparkle */; };
 		0B2DFA97A38B7BFF005F421D /* MagnetValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 518F02CAD405542D27AECC91 /* MagnetValidatorTests.swift */; };
 		0FF313994562367FD1A97BA6 /* URLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72F0FFEE6D12F6AFDF6EFE5A /* URLHandler.swift */; };
 		100D2CBC8E124514A45239E0 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971292797E8CECCC5CC228D6 /* AppModel.swift */; };
+		1BF2DE8F65287E8FF984A626 /* UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DA121E9795178DFCDB09F30 /* UpdateController.swift */; };
 		2C5665B573B2B6BE13CBDF20 /* TransmissionClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AAD23E8EF2598112B18D4D /* TransmissionClientTests.swift */; };
 		32AE9068542A601F4DC6A576 /* TransmissionClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB86095E26092DE0124F62CE /* TransmissionClient.swift */; };
 		37C068023A28A53B28B313A5 /* libMagnetBridgeCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EB198BDF518A82B8C8FF18C /* libMagnetBridgeCore.a */; };
@@ -66,6 +68,7 @@
 		72F0FFEE6D12F6AFDF6EFE5A /* URLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLHandler.swift; sourceTree = "<group>"; };
 		7A56B290B630FE79F5561A74 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		7AA6F72B46A1565E4DA5A909 /* MagnetBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagnetBridgeApp.swift; sourceTree = "<group>"; };
+		7DA121E9795178DFCDB09F30 /* UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateController.swift; sourceTree = "<group>"; };
 		8DD4400A5B219ACC7C5CCD9B /* MagnetBridgeCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MagnetBridgeCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F43F0DD446CB239FAA6C02C /* TransmissionEndpointResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionEndpointResolverTests.swift; sourceTree = "<group>"; };
 		9703D92C374CE8D6E3BA1F41 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -90,6 +93,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				37C068023A28A53B28B313A5 /* libMagnetBridgeCore.a in Frameworks */,
+				046E19661A223D3909091F08 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +132,7 @@
 				BB3A2F60A451DD68C16B5D64 /* MagnetHandlerRegistration.swift */,
 				44B23317CDDA0A3E42916321 /* MainView.swift */,
 				0BCACD1B022FC79BC91FE008 /* TerminalUI.swift */,
+				7DA121E9795178DFCDB09F30 /* UpdateController.swift */,
 			);
 			name = MagnetBridgeApp;
 			path = Sources/MagnetBridgeApp;
@@ -210,6 +215,7 @@
 			);
 			name = MagnetBridge;
 			packageProductDependencies = (
+				EBEF9CC5CC07758486EDF60B /* Sparkle */,
 			);
 			productName = MagnetBridge;
 			productReference = EA7DE93EC3FD275B1F524C98 /* MagnetBridge.app */;
@@ -256,6 +262,9 @@
 			);
 			mainGroup = DE1B9D238BBE30DBF96785AC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3BEDB51C04595AB6F6C13C15 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 40A248FD564FCF1CFE9E823F /* Products */;
 			projectDirPath = "";
@@ -309,6 +318,7 @@
 				43AC72C7D9375687DA35E1E8 /* MagnetHandlerRegistration.swift in Sources */,
 				74119F827DE8B5F0EB9C9633 /* MainView.swift in Sources */,
 				00E7657C30CCB7D2C9AEDD76 /* TerminalUI.swift in Sources */,
+				1BF2DE8F65287E8FF984A626 /* UpdateController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -548,14 +558,14 @@
 				CODE_SIGN_ENTITLEMENTS = Sources/MagnetBridgeApp/MagnetBridge.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Sources/MagnetBridgeApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.3.1;
+				MARKETING_VERSION = 0.4.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -589,14 +599,14 @@
 				CODE_SIGN_ENTITLEMENTS = Sources/MagnetBridgeApp/MagnetBridge.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Sources/MagnetBridgeApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.3.1;
+				MARKETING_VERSION = 0.4.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -647,6 +657,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3BEDB51C04595AB6F6C13C15 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = exactVersion;
+				version = 2.9.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EBEF9CC5CC07758486EDF60B /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3BEDB51C04595AB6F6C13C15 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B78C31FBA3812E47254899CC /* Project object */;
 }

@@ -30,17 +30,38 @@ Each MagnetBridge release generates a checksum-pinned `magnet-bridge.rb`. The
 release workflow updates the tap automatically when `HOMEBREW_TAP_TOKEN` is
 configured:
 
-1. Build, sign, notarize, and staple the universal app.
+1. Build the universal app with Sparkle, then sign, notarize, and staple it.
 2. Create `MagnetBridge.zip` and calculate SHA-256.
-3. Publish the GitHub release.
-4. Update `Casks/magnet-bridge.rb` in `decyrus/homebrew-tap`.
-5. Commit the new version and checksum to the tap.
+3. Generate and verify the EdDSA-signed `appcast.xml`.
+4. Publish the GitHub release.
+5. Update `Casks/magnet-bridge.rb` in `decyrus/homebrew-tap`.
+6. Commit the new version and checksum to the tap.
 
 Because the tap is a different repository, this step needs either a GitHub App
 or a fine-grained token with Contents write access to only
 `decyrus/homebrew-tap`. Store it as `HOMEBREW_TAP_TOKEN`; do not use a
 developer's broad personal token. The workflow emits a warning and leaves the
 published Cask unchanged when the secret is absent.
+
+## In-app updates
+
+The Cask declares `auto_updates true` because MagnetBridge can download and
+install a release through Sparkle's **Check for Updates…** action. Homebrew can
+therefore account for a bundle changed outside its own installation record.
+
+MagnetBridge keeps a fixed Cask version and checksum. For a versioned Cask with
+a readable application bundle, Homebrew compares the installed bundle version
+to the current Cask and avoids downgrading a copy that Sparkle has already
+updated. Users may use either the in-app updater or:
+
+```sh
+brew update
+brew upgrade --cask magnet-bridge
+```
+
+Do not remove `auto_updates true` while the native updater is present. Continue
+publishing checksum-pinned Casks even though later in-app updates are
+authenticated independently by Sparkle and Developer ID.
 
 ## Official Homebrew Cask
 

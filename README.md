@@ -50,10 +50,14 @@ instead of being duplicated.
 ## Highlights
 
 - Native Swift 6 and SwiftUI app for macOS 14 and later.
-- Compact window with optional menu bar mode.
+- Compact window, built-in help, and optional menu bar mode with a native
+  monochrome status icon.
 - Works with Transmission 4.0.x legacy RPC and Transmission 4.1+ JSON-RPC 2.0.
-- Supports Basic Authentication and stores the password only in macOS Keychain.
-- Opens the Web UI in the system browser or a selected installed browser.
+- Optional Basic Authentication with the password stored only in macOS
+  Keychain.
+- Opens the Web UI in the system browser or a selected installed browser,
+  shown with its application icon.
+- Secure in-app updates through Sparkle 2.9.4 and a signed appcast.
 - Keeps full magnet links and credentials out of settings, logs, and diagnostics.
 - Signed with Developer ID, notarized by Apple, and built for Apple Silicon and
   Intel Macs.
@@ -110,18 +114,23 @@ Open MagnetBridge from Applications and enter one server address, such as
 `https://transmission.example`. MagnetBridge adds Transmission's standard
 `/transmission/rpc` and `/transmission/web/` paths automatically.
 
-Configure optional Basic Authentication, browser, timeout, and torrent start
-mode, then use **Test Connection** and **Save & Make Default**. Non-standard RPC
-and Web UI URLs are available under **Advanced**.
+Enable **Use custom endpoint URLs** directly below the server field only when a
+reverse proxy changes those paths. Enable **Use Basic Authentication** only
+when the Transmission server requires credentials; the username and password
+fields remain hidden otherwise. Configure the browser, timeout, and torrent
+start mode, then use **Test Connection** and **Save & Make Default**.
 
 The password is never loaded back into the form and is stored only in macOS
-Keychain. Plain HTTP requires an explicit warning acknowledgement. For remote
-servers, prefer HTTPS through a trusted reverse proxy, a VPN, or Tailscale; do
-not publish the Transmission RPC port directly to the internet.
+Keychain. Turning authentication off keeps any saved credential for later but
+prevents MagnetBridge from reading or sending it. Plain HTTP requires an
+explicit warning acknowledgement. For remote servers, prefer HTTPS through a
+trusted reverse proxy, a VPN, or Tailscale; do not publish the Transmission RPC
+port directly to the internet.
 
 By default MagnetBridge stays available from the menu bar after its window is
 closed. Turn off **Keep MagnetBridge in the menu bar** to use it as a regular
-Dock app that quits when the window closes.
+Dock app that quits when the window closes. Open the built-in guide from the
+question-mark button or **MagnetBridge Help** in the app and status menus.
 
 Test protocol handling with:
 
@@ -131,7 +140,13 @@ open "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
 
 ## Update
 
-Homebrew installations will update with:
+Use **Check for Updates…** from the app menu, status menu, or Help window.
+**Automatically check for updates** is opt-in and can be changed under
+**macOS Integration**. Sparkle 2.9.4 downloads the notarized release from the
+project's signed appcast and verifies its EdDSA signature before installation;
+anonymous system profiling is disabled.
+
+Homebrew installations can also update with:
 
 ```sh
 brew update
@@ -143,9 +158,11 @@ For a manual installation, replace the app with the copy from the
 One-line installations can be updated by running the installer again.
 Preferences and the Keychain password are preserved by all three methods.
 
-Automatic in-app updates are planned using Sparkle 2 with a signed appcast.
-The staged design and security requirements are documented in
-[Updating MagnetBridge](Documentation/Updating.md).
+An installation older than the first Sparkle-enabled release must be upgraded
+once through Homebrew, the installer, or manual replacement. Native updating
+works from that release onward. See
+[Updating MagnetBridge](Documentation/Updating.md) for the trust model and
+fallback methods.
 
 ## CLI
 
@@ -164,8 +181,6 @@ Configuration can also be scripted:
 
 ```sh
 magnetbridge config set server https://server.example
-magnetbridge config set username alice
-magnetbridge config set password
 magnetbridge config set timeout 15
 magnetbridge config set start-mode immediately
 magnetbridge config set open-web-ui true
@@ -173,12 +188,33 @@ magnetbridge config set browser system
 magnetbridge config set menu-bar true
 ```
 
+For a server that requires Basic Authentication:
+
+```sh
+magnetbridge config set username alice
+magnetbridge config set password
+```
+
+Setting a username enables authentication, and the password command prompts
+without echoing. Stop reading or sending the saved credential without deleting
+it:
+
+```sh
+magnetbridge config set authentication false
+```
+
+Re-enable an already configured username with `authentication true`, or remove
+the Keychain password with `magnetbridge config unset-password`.
+
 An interactive terminal wizard is retained:
 
 ```sh
 magnetbridge configure
 magnetbridge configure --advanced
 ```
+
+The advanced wizard exposes custom endpoints. They can also be scripted with
+the `rpc-url` and `web-ui-url` configuration keys.
 
 For an intentionally unencrypted endpoint:
 
@@ -245,7 +281,8 @@ file selection, download directories, mobile apps, and an embedded Web UI are
 outside the current scope.
 
 Read the [architecture](Documentation/Architecture.md),
-[Homebrew distribution plan](Documentation/Homebrew.md),
+[update guide](Documentation/Updating.md),
+[Homebrew distribution guide](Documentation/Homebrew.md),
 [release guide](Documentation/Releasing.md),
 [contributing guide](CONTRIBUTING.md), and [security policy](SECURITY.md).
 

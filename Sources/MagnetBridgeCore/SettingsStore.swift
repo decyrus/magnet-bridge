@@ -16,10 +16,7 @@ public final class SettingsStore: SettingsStoring, @unchecked Sendable {
     defaults: UserDefaults? = nil,
     key: String = "MagnetBridge.settings.v1"
   ) {
-    self.defaults =
-      defaults
-      ?? UserDefaults(suiteName: Self.applicationSuiteName)
-      ?? .standard
+    self.defaults = defaults ?? .standard
     self.key = key
   }
 

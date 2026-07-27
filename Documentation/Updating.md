@@ -1,9 +1,46 @@
 # Updating MagnetBridge
 
-MagnetBridge currently supports explicit, user-initiated updates. The next
-stage is a secure native update flow.
+MagnetBridge includes [Sparkle 2.9.4](https://sparkle-project.org/) for native,
+user-controlled updates.
 
-## Supported today
+## In-app updates
+
+Choose **Check for Updates…** from the application menu, menu-bar status menu,
+or Help window. The **Check Now** button under **macOS Integration** performs
+the same action.
+
+Automatic checks are opt-in. Enable or disable **Automatically check for
+updates** under **macOS Integration** at any time. Sparkle owns this preference
+and its schedule; MagnetBridge does not enable system profiling or send
+telemetry with update checks.
+
+The app reads its feed from:
+
+```text
+https://github.com/decyrus/magnet-bridge/releases/latest/download/appcast.xml
+```
+
+Every release publishes this appcast as a GitHub Release asset. The feed,
+embedded release notes, and ZIP enclosure are signed with the project's
+dedicated Sparkle EdDSA key. Sparkle verifies the signed feed and archive before
+extraction. The application inside the archive is also signed with Developer
+ID, notarized, and stapled by Apple.
+
+These checks are complementary:
+
+- Sparkle EdDSA authenticates the appcast and exact update archive.
+- Developer ID authenticates the application bundle.
+- Apple notarization and Gatekeeper validate its distribution status.
+- Homebrew's SHA-256 authenticates the archive selected by the Cask.
+
+## Bootstrap limitation
+
+An installed version that predates Sparkle cannot discover or install the first
+Sparkle-enabled release by itself. Upgrade that installation once with
+Homebrew, the installer, or manual replacement. In-app updates work from the
+first Sparkle-enabled release onward.
+
+## Other update methods
 
 ### Homebrew
 
@@ -12,14 +49,16 @@ brew update
 brew upgrade --cask magnet-bridge
 ```
 
-Homebrew downloads the new notarized ZIP and verifies the SHA-256 checksum
-stored in the Cask before replacing the app.
+The Cask declares `auto_updates true`, allowing Homebrew to account for an app
+bundle that Sparkle has already updated. Homebrew compares readable bundle
+version metadata and avoids replacing a newer installed copy with an older
+one.
 
 ### One-line installer
 
 Run the installer again. It downloads the latest GitHub release, verifies the
-published checksum, replaces the application bundle, and leaves preferences and
-Keychain items intact.
+published checksum, replaces the application bundle, and leaves preferences
+and Keychain items intact.
 
 ### Manual installation
 
@@ -27,34 +66,16 @@ Download `MagnetBridge.zip` and `MagnetBridge.zip.sha256` from the latest GitHub
 release, verify the checksum, quit MagnetBridge, and replace the application in
 `/Applications`.
 
-## Proposed native updater
-
-[Sparkle 2](https://sparkle-project.org/) is the preferred implementation for
-automatic update checks and installation. It is mature, supports sandboxed and
-non-sandboxed macOS applications, and verifies updates independently of HTTPS.
-
-The rollout should be staged:
-
-1. Add a non-intrusive **Check for Updates…** action and an opt-in automatic
-   check setting.
-2. Generate an appcast from GitHub Releases.
-3. Sign every appcast item with a dedicated Sparkle EdDSA key.
-4. Keep the private update key in GitHub Actions secrets and publish only the
-   public key in the application.
-5. Test upgrade and rollback behavior on both Apple Silicon and Intel Macs.
-6. Only then enable automatic download and installation.
-
-The Developer ID signature, Apple notarization, release SHA-256, and Sparkle
-signature serve different purposes and should all remain in place.
-
 ## Versioning policy
 
-MagnetBridge uses semantic versions:
+MagnetBridge uses a semantic `MARKETING_VERSION` and an independent,
+machine-readable `CURRENT_PROJECT_VERSION`.
 
-- Patch releases fix bugs and documentation without changing configuration
-  compatibility.
+- Increment `CURRENT_PROJECT_VERSION` for every release. Sparkle compares this
+  build number and it must be strictly greater than every published build.
+- Patch releases fix bugs without breaking configuration compatibility.
 - Minor releases add backward-compatible features.
-- Major releases may require settings or workflow migration.
+- Major releases may require a documented settings or workflow migration.
 
 Settings stored by older releases must continue to load, and Keychain service
 and account identifiers must remain stable across upgrades.

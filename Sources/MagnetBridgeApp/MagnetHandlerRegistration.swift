@@ -9,7 +9,7 @@ enum MagnetHandlerRegistration {
   private static let bundleIdentifier = "org.magnetbridge.app"
   private static let previousHandlerKey = "previousMagnetHandlerBundleIdentifier"
   private static let defaults =
-    UserDefaults(suiteName: SettingsStore.applicationSuiteName) ?? .standard
+    UserDefaults.standard
 
   static func makeDefault() async throws {
     let applicationURL = try installedApplicationURL()

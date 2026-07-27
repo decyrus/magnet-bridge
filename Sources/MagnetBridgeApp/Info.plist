@@ -46,5 +46,17 @@
 	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026 MagnetBridge contributors</string>
+	<key>SUEnableAutomaticChecks</key>
+	<false/>
+	<key>SUEnableSystemProfiling</key>
+	<false/>
+	<key>SUFeedURL</key>
+	<string>https://github.com/decyrus/magnet-bridge/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>pDwXr22wMBToLAkgucb3ILM0yPnOvgMocSSnqrO33hc=</string>
+	<key>SURequireSignedFeed</key>
+	<true/>
+	<key>SUVerifyUpdateBeforeExtraction</key>
+	<true/>
 </dict>
 </plist>

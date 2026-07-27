@@ -4,6 +4,7 @@ import SwiftUI
 
 struct MainView: View {
   @Bindable var model: AppModel
+  @Bindable var updater: UpdateController
   @State private var showsSettingsForPendingLink = false
 
   var body: some View {
@@ -19,26 +20,30 @@ struct MainView: View {
       } else {
         SettingsView(
           model: model,
+          updater: updater,
           hasPendingLink: model.pendingMagnetURL != nil,
           returnToLink: { showsSettingsForPendingLink = false }
         )
       }
     }
-    .frame(minWidth: 560, idealWidth: 600, maxWidth: 680, minHeight: 520)
+    .frame(minWidth: 570, idealWidth: 620, maxWidth: 700, minHeight: 560)
     .background(Color(nsColor: .windowBackgroundColor))
+    .sheet(isPresented: $model.showsHelp) {
+      HelpView(updater: updater)
+    }
     .onChange(of: model.pendingMagnetURL?.absoluteString) {
       showsSettingsForPendingLink = false
     }
   }
 
   private var header: some View {
-    HStack(spacing: 12) {
-      Image(systemName: "link.badge.plus")
-        .font(.system(size: 25, weight: .semibold))
-        .symbolRenderingMode(.hierarchical)
-        .foregroundStyle(.tint)
-        .frame(width: 38, height: 38)
-        .background(.tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+    HStack(spacing: 10) {
+      Image(nsImage: NSApplication.shared.applicationIconImage)
+        .resizable()
+        .interpolation(.high)
+        .frame(width: 40, height: 40)
+        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .accessibilityHidden(true)
 
       VStack(alignment: .leading, spacing: 2) {
         Text("MagnetBridge")
@@ -49,6 +54,16 @@ struct MainView: View {
       }
 
       Spacer()
+
+      Button {
+        model.showsHelp = true
+      } label: {
+        Image(systemName: "questionmark.circle")
+          .font(.system(size: 16, weight: .medium))
+      }
+      .buttonStyle(.plain)
+      .help("MagnetBridge Help")
+      .accessibilityLabel("MagnetBridge Help")
 
       HStack(spacing: 6) {
         Circle()
@@ -66,8 +81,8 @@ struct MainView: View {
       .padding(.vertical, 6)
       .background(.quaternary, in: Capsule())
     }
-    .padding(.horizontal, 20)
-    .padding(.vertical, 14)
+    .padding(.horizontal, 16)
+    .padding(.vertical, 9)
   }
 }
 
@@ -120,6 +135,7 @@ private struct MagnetChoiceView: View {
                 Image(nsImage: application.icon)
                   .resizable()
                   .frame(width: 24, height: 24)
+                  .accessibilityHidden(true)
                 Text(application.name)
                 Spacer()
                 Image(systemName: "arrow.up.forward.app")
@@ -167,14 +183,14 @@ private struct MagnetChoiceView: View {
 
 private struct SettingsView: View {
   @Bindable var model: AppModel
-  @State private var showsAdvancedEndpoints = false
+  @Bindable var updater: UpdateController
   let hasPendingLink: Bool
   let returnToLink: () -> Void
 
   var body: some View {
     VStack(spacing: 0) {
       ScrollView {
-        VStack(spacing: 14) {
+        VStack(spacing: 8) {
           if hasPendingLink {
             Button {
               returnToLink()
@@ -194,7 +210,7 @@ private struct SettingsView: View {
             NoticeBanner(notice: notice)
           }
         }
-        .padding(20)
+        .padding(10)
       }
 
       Divider()
@@ -223,97 +239,109 @@ private struct SettingsView: View {
         .keyboardShortcut(.defaultAction)
         .disabled(model.isBusy)
       }
-      .padding(.horizontal, 20)
-      .padding(.vertical, 14)
-    }
-    .onAppear {
-      showsAdvancedEndpoints = model.usesCustomEndpoints
+      .padding(.horizontal, 16)
+      .padding(.vertical, 8)
     }
   }
 
   private var connectionSection: some View {
     SettingsCard(title: "Transmission Server", systemImage: "server.rack") {
-      VStack(alignment: .leading, spacing: 12) {
+      VStack(alignment: .leading, spacing: 8) {
         LabeledContent("Server") {
           TextField("https://server.example:9091", text: $model.serverAddress)
             .textFieldStyle(.roundedBorder)
-            .frame(width: 320)
+            .frame(width: 380)
         }
         Text(
           model.usesCustomEndpoints
-            ? "The advanced endpoint URLs below override this address."
+            ? "The custom URLs below override the standard Transmission paths."
             : "Standard Transmission RPC and Web UI paths are added automatically."
         )
         .font(.caption)
         .foregroundStyle(.secondary)
 
+        Toggle(
+          "Use custom endpoint URLs",
+          isOn: $model.usesCustomEndpoints
+        )
+        .toggleStyle(.checkbox)
+
+        if model.usesCustomEndpoints {
+          LabeledContent("RPC URL") {
+            TextField(
+              "https://server.example/transmission/rpc",
+              text: $model.settings.rpcURL
+            )
+            .textFieldStyle(.roundedBorder)
+            .frame(width: 380)
+          }
+          LabeledContent("Web UI URL") {
+            TextField(
+              "https://server.example/transmission/web/",
+              text: $model.settings.webUIURL
+            )
+            .textFieldStyle(.roundedBorder)
+            .frame(width: 380)
+          }
+        }
+
         Divider()
 
-        LabeledContent("Username") {
-          TextField("Optional", text: $model.settings.username)
-            .textFieldStyle(.roundedBorder)
-            .frame(width: 230)
-        }
-        LabeledContent("Password") {
+        Toggle(
+          "Use Basic Authentication",
+          isOn: Binding(
+            get: { model.settings.usesAuthentication },
+            set: { model.setAuthenticationEnabled($0) }
+          )
+        )
+        .toggleStyle(.checkbox)
+
+        if model.settings.usesAuthentication {
           HStack(spacing: 8) {
+            Text("Username")
+              .frame(width: 64, alignment: .leading)
+            TextField("Transmission username", text: $model.settings.username)
+              .textFieldStyle(.roundedBorder)
+              .frame(width: 150)
+              .accessibilityLabel("Username")
+            Text("Password")
+              .frame(width: 62, alignment: .leading)
             SecureField(
-              model.hasStoredPassword ? "Stored in Keychain" : "Optional",
+              model.hasStoredPassword ? "Stored in Keychain" : "Transmission password",
               text: $model.passwordInput
             )
             .textFieldStyle(.roundedBorder)
-            .frame(width: 230)
+            .frame(width: 150)
+            .accessibilityLabel("Password")
             if model.hasStoredPassword {
-              Button("Remove") {
+              Button {
                 model.removeStoredPassword()
+              } label: {
+                Image(systemName: "trash")
               }
               .buttonStyle(.borderless)
+              .help("Remove saved password from Keychain")
+              .accessibilityLabel("Remove saved password from Keychain")
             }
           }
         }
-
-        DisclosureGroup("Advanced", isExpanded: $showsAdvancedEndpoints) {
-          VStack(alignment: .leading, spacing: 10) {
-            Toggle(
-              "Override standard endpoint URLs",
-              isOn: $model.usesCustomEndpoints
-            )
-            if model.usesCustomEndpoints {
-              LabeledContent("RPC URL") {
-                TextField(
-                  "https://server.example/transmission/rpc",
-                  text: $model.settings.rpcURL
-                )
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 300)
-              }
-              LabeledContent("Web UI URL") {
-                TextField(
-                  "https://server.example/transmission/web/",
-                  text: $model.settings.webUIURL
-                )
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 300)
-              }
-              Text(
-                "Use custom URLs only when a reverse proxy changes Transmission’s standard paths."
-              )
-              .font(.caption)
-              .foregroundStyle(.secondary)
-            }
-          }
-          .padding(.top, 8)
-        }
-        .font(.callout)
 
         if model.isUsingInsecureHTTP {
-          Toggle(
-            "Allow unencrypted HTTP connection",
-            isOn: $model.settings.hasAcknowledgedInsecureHTTP
-          )
-          .tint(.orange)
-          Text("Basic Authentication credentials are visible to the network over HTTP.")
+          HStack(spacing: 10) {
+            Toggle(
+              "Allow unencrypted HTTP connection",
+              isOn: $model.settings.hasAcknowledgedInsecureHTTP
+            )
+            .tint(.orange)
+            .toggleStyle(.checkbox)
+            Text(
+              model.settings.usesAuthentication
+                ? "Credentials are exposed over HTTP."
+                : "Traffic is exposed over HTTP."
+            )
             .font(.caption)
             .foregroundStyle(.orange)
+          }
         }
       }
     }
@@ -321,44 +349,66 @@ private struct SettingsView: View {
 
   private var behaviorSection: some View {
     SettingsCard(title: "Behavior", systemImage: "slider.horizontal.3") {
-      VStack(spacing: 12) {
-        LabeledContent("Start torrents") {
+      VStack(alignment: .leading, spacing: 6) {
+        HStack(spacing: 12) {
+          Text("Start torrents")
+            .frame(width: 132, alignment: .leading)
           Picker("", selection: $model.settings.startMode) {
             Text("Immediately").tag(TorrentStartMode.immediately)
             Text("Paused").tag(TorrentStartMode.paused)
           }
           .labelsHidden()
           .pickerStyle(.segmented)
-          .frame(width: 230)
+          .frame(width: 240)
+          .accessibilityLabel("Start torrents")
         }
+
         Toggle("Open Transmission Web UI after adding", isOn: $model.settings.opensWebUI)
+          .toggleStyle(.checkbox)
+
         if model.settings.opensWebUI {
-          LabeledContent("Browser") {
+          HStack(spacing: 12) {
+            Text("Browser")
+              .frame(width: 132, alignment: .leading)
             Picker("", selection: $model.settings.browser) {
-              ForEach(model.browsers, id: \.self) { browser in
-                Text(browser.displayName).tag(browser)
+              ForEach(model.browserOptions) { option in
+                HStack(spacing: 6) {
+                  Image(nsImage: option.icon)
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: 16, height: 16)
+                    .accessibilityHidden(true)
+                  Text(option.selection.displayName)
+                }
+                .tag(option.selection)
               }
             }
             .labelsHidden()
-            .frame(width: 230)
+            .frame(width: 240)
+            .accessibilityLabel("Browser")
           }
         }
-        LabeledContent("Connection timeout") {
+
+        HStack(spacing: 12) {
+          Text("Connection timeout")
+            .frame(width: 132, alignment: .leading)
           Stepper(
             "\(Int(model.settings.timeout)) seconds",
             value: $model.settings.timeout,
             in: 3...60,
             step: 1
           )
-          .frame(width: 230)
+          .frame(width: 160, alignment: .leading)
+          .accessibilityLabel("Connection timeout")
         }
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
   }
 
   private var integrationSection: some View {
     SettingsCard(title: "macOS Integration", systemImage: "macwindow") {
-      VStack(alignment: .leading, spacing: 12) {
+      VStack(alignment: .leading, spacing: 6) {
         Toggle(
           "Keep MagnetBridge in the menu bar",
           isOn: Binding(
@@ -366,6 +416,7 @@ private struct SettingsView: View {
             set: { model.showsMenuBarIcon = $0 }
           )
         )
+        .toggleStyle(.checkbox)
         Text(
           model.showsMenuBarIcon
             ? "Closing the window keeps MagnetBridge available in the menu bar."
@@ -376,22 +427,169 @@ private struct SettingsView: View {
 
         Divider()
 
-        LabeledContent("Current magnet handler") {
+        HStack(spacing: 12) {
+          Text("Magnet handler")
+            .frame(width: 132, alignment: .leading)
           Text(model.currentHandler)
             .foregroundStyle(.secondary)
             .lineLimit(1)
-        }
-        HStack {
+            .help(model.currentHandler)
+          Spacer()
           Button("Make Default") {
             Task { await model.makeDefaultHandler() }
           }
           .disabled(model.isBusy || model.currentHandler.hasPrefix("MagnetBridge"))
 
-          Button("Restore \(model.restoreTarget)") {
+          Button("Restore Previous") {
             Task { await model.restorePreviousHandler() }
           }
           .disabled(model.isBusy || model.restoreTarget == "not available")
+          .help("Restore \(model.restoreTarget) as the default magnet handler")
         }
+
+        Divider()
+
+        HStack(spacing: 12) {
+          Toggle(
+            "Automatically check for updates",
+            isOn: Binding(
+              get: { updater.automaticallyChecksForUpdates },
+              set: { updater.automaticallyChecksForUpdates = $0 }
+            )
+          )
+          .toggleStyle(.checkbox)
+          Spacer()
+          Button("Check Now") {
+            updater.checkForUpdates()
+          }
+        }
+      }
+    }
+  }
+}
+
+private struct HelpView: View {
+  @Bindable var updater: UpdateController
+  @Environment(\.dismiss) private var dismiss
+
+  private var version: String {
+    let shortVersion =
+      Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+      ?? "Development"
+    let build =
+      Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+      ?? "—"
+    return "Version \(shortVersion) (\(build))"
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 14) {
+      HStack(spacing: 12) {
+        Image(nsImage: NSApplication.shared.applicationIconImage)
+          .resizable()
+          .interpolation(.high)
+          .frame(width: 50, height: 50)
+          .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+          .accessibilityHidden(true)
+        VStack(alignment: .leading, spacing: 2) {
+          Text("MagnetBridge Help")
+            .font(.title2.weight(.semibold))
+          Text("Send magnet links from your Mac to a Transmission server.")
+            .foregroundStyle(.secondary)
+        }
+      }
+
+      Divider()
+
+      VStack(alignment: .leading, spacing: 11) {
+        HelpStep(
+          number: 1,
+          title: "Connect",
+          detail:
+            "Enter the Transmission server address. Enable custom endpoints "
+            + "or Basic Authentication only when your server needs them."
+        )
+        HelpStep(
+          number: 2,
+          title: "Verify",
+          detail:
+            "Use Test Connection, then Save & Make Default so macOS routes "
+            + "magnet links to MagnetBridge."
+        )
+        HelpStep(
+          number: 3,
+          title: "Open a magnet link",
+          detail:
+            "Choose the Transmission server or one of the other installed "
+            + "handlers. Downloads always run on the server."
+        )
+      }
+
+      Text(
+        "Tip: menu-bar mode keeps MagnetBridge ready after its window is closed. Turn it off to use the app only from the Dock."
+      )
+      .font(.callout)
+      .foregroundStyle(.secondary)
+      .padding(10)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(.quaternary.opacity(0.65), in: RoundedRectangle(cornerRadius: 8))
+
+      HStack(spacing: 14) {
+        Link(
+          "Transmission",
+          destination: URL(string: "https://transmissionbt.com/")!
+        )
+        Link(
+          "User Guide",
+          destination: URL(string: "https://github.com/decyrus/magnet-bridge#readme")!
+        )
+        Link(
+          "Report an Issue",
+          destination: URL(string: "https://github.com/decyrus/magnet-bridge/issues/new/choose")!
+        )
+        Spacer()
+        Button("Check for Updates…") {
+          updater.checkForUpdates()
+        }
+      }
+
+      Divider()
+
+      HStack {
+        Text(version)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+        Spacer()
+        Button("Done") {
+          dismiss()
+        }
+        .keyboardShortcut(.defaultAction)
+      }
+    }
+    .padding(20)
+    .frame(width: 540)
+  }
+}
+
+private struct HelpStep: View {
+  let number: Int
+  let title: String
+  let detail: String
+
+  var body: some View {
+    HStack(alignment: .top, spacing: 10) {
+      Text("\(number)")
+        .font(.caption.weight(.bold))
+        .foregroundStyle(.white)
+        .frame(width: 22, height: 22)
+        .background(.tint, in: Circle())
+      VStack(alignment: .leading, spacing: 2) {
+        Text(title)
+          .font(.headline)
+        Text(detail)
+          .font(.callout)
+          .foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
       }
     }
   }
@@ -403,14 +601,14 @@ private struct SettingsCard<Content: View>: View {
   @ViewBuilder let content: Content
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: 6) {
       Label(title, systemImage: systemImage)
         .font(.headline)
         .foregroundStyle(.primary)
       content
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(16)
+    .padding(11)
     .background(
       Color(nsColor: .controlBackgroundColor),
       in: RoundedRectangle(cornerRadius: 12)
@@ -429,12 +627,13 @@ private struct NoticeBanner: View {
     HStack(alignment: .top, spacing: 9) {
       Image(systemName: iconName)
         .foregroundStyle(tint)
+        .accessibilityHidden(true)
       Text(notice.message)
         .font(.callout)
         .textSelection(.enabled)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    .padding(11)
+    .padding(9)
     .background(tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 9))
   }
 

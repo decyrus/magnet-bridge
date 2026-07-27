@@ -46,6 +46,63 @@ final class URLHandlerTests: XCTestCase {
     XCTAssertTrue(shownNotifications.contains { $0.title == "Torrent Already Added" })
   }
 
+  func testDisabledAuthenticationDoesNotReadPasswordOrSendHeader() async throws {
+    var settings = configuredSettings
+    settings.usesAuthentication = false
+    settings.opensWebUI = false
+    let passwordStore = RecordingPasswordStore(password: "retained-secret")
+    let session = HandlerSession([
+      .response(
+        status: 200,
+        body:
+          #"{"result":"success","arguments":{"torrent-added":{"id":4,"name":"Added","hashString":"def"}}}"#
+      )
+    ])
+    let handler = URLHandler(
+      settingsStore: FixedSettingsStore(settings: settings),
+      passwordStore: passwordStore,
+      browserLauncher: RecordingBrowserLauncher(),
+      notificationService: RecordingNotificationService(),
+      session: session
+    )
+
+    _ = await handler.handle(try validMagnetURL())
+
+    XCTAssertEqual(passwordStore.readCount, 0)
+    let requests = await session.requests
+    XCTAssertNil(requests.first?.value(forHTTPHeaderField: "Authorization"))
+  }
+
+  func testEnabledAuthenticationReadsPasswordAndSendsHeader() async throws {
+    var settings = configuredSettings
+    settings.usesAuthentication = true
+    settings.opensWebUI = false
+    let passwordStore = RecordingPasswordStore(password: "secret")
+    let session = HandlerSession([
+      .response(
+        status: 200,
+        body:
+          #"{"result":"success","arguments":{"torrent-added":{"id":4,"name":"Added","hashString":"def"}}}"#
+      )
+    ])
+    let handler = URLHandler(
+      settingsStore: FixedSettingsStore(settings: settings),
+      passwordStore: passwordStore,
+      browserLauncher: RecordingBrowserLauncher(),
+      notificationService: RecordingNotificationService(),
+      session: session
+    )
+
+    _ = await handler.handle(try validMagnetURL())
+
+    XCTAssertEqual(passwordStore.readCount, 1)
+    let requests = await session.requests
+    XCTAssertEqual(
+      requests.first?.value(forHTTPHeaderField: "Authorization"),
+      "Basic \(Data("alice:secret".utf8).base64EncodedString())"
+    )
+  }
+
   func testInvalidMagnetNeverContactsServerOrBrowser() async throws {
     let browser = RecordingBrowserLauncher()
     let session = HandlerSession([])
@@ -114,6 +171,15 @@ final class URLHandlerTests: XCTestCase {
       hasAcknowledgedInsecureHTTP: true
     )
   }
+
+  private func validMagnetURL() throws -> URL {
+    try XCTUnwrap(
+      URL(
+        string:
+          "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
+      )
+    )
+  }
 }
 
 private struct FixedSettingsStore: SettingsStoring {
@@ -131,6 +197,30 @@ private struct FixedPasswordStore: PasswordStoring {
 
   func readPassword() throws -> String? {
     password
+  }
+
+  func savePassword(_ password: String) throws {}
+  func deletePassword() throws {}
+}
+
+private final class RecordingPasswordStore: PasswordStoring, @unchecked Sendable {
+  private let lock = NSLock()
+  private let password: String?
+  private var reads = 0
+
+  init(password: String?) {
+    self.password = password
+  }
+
+  var readCount: Int {
+    lock.withLock { reads }
+  }
+
+  func readPassword() throws -> String? {
+    lock.withLock {
+      reads += 1
+      return password
+    }
   }
 
   func savePassword(_ password: String) throws {}
@@ -195,6 +285,7 @@ private actor HandlerSession: NetworkSession {
 
   private var items: [Item]
   private(set) var requestCount = 0
+  private(set) var requests: [URLRequest] = []
 
   init(_ items: [Item]) {
     self.items = items
@@ -202,6 +293,7 @@ private actor HandlerSession: NetworkSession {
 
   func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
     requestCount += 1
+    requests.append(request)
     guard !items.isEmpty else {
       throw URLError(.badServerResponse)
     }

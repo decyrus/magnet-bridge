@@ -106,24 +106,25 @@ enum CLIApplication {
     }
 
     TerminalUI.section("🔐", "Basic Authentication")
-    settings.username = prompt(
-      "Basic Auth username (leave empty to disable)",
-      default: settings.username
-    )
-
-    let hasPassword = (try passwordStore.readPassword())?.isEmpty == false
     var passwordUpdate: String?
-    if settings.username.isEmpty, hasPassword {
-      if promptBoolean("Remove the saved Basic Auth password?", default: true) {
-        passwordUpdate = ""
-      }
-    } else if !settings.username.isEmpty,
-      promptBoolean(
+    settings.usesAuthentication = promptBoolean(
+      "Use Basic Authentication?",
+      default: settings.usesAuthentication
+    )
+    if settings.usesAuthentication {
+      settings.username = prompt(
+        "Basic Auth username",
+        default: settings.username
+      )
+      let hasPassword = (try passwordStore.readPassword())?.isEmpty == false
+      if promptBoolean(
         hasPassword ? "Replace the saved password?" : "Save a Transmission password?",
         default: !hasPassword
-      )
-    {
-      passwordUpdate = readSecret("Transmission password")
+      ) {
+        passwordUpdate = readSecret("Transmission password")
+      }
+    } else {
+      TerminalUI.note("Saved credentials are retained but will not be read or sent.")
     }
 
     TerminalUI.section("⚙️", "Behavior")
@@ -139,7 +140,11 @@ enum CLIApplication {
 
     if URL(string: settings.rpcURL)?.scheme?.lowercased() == "http" {
       TerminalUI.section("⚠️", "Transport security")
-      TerminalUI.warning("Basic Auth over HTTP is not encrypted.")
+      TerminalUI.warning(
+        settings.usesAuthentication
+          ? "Basic Auth credentials and Transmission traffic are not encrypted."
+          : "Transmission traffic over HTTP is not encrypted."
+      )
       settings.hasAcknowledgedInsecureHTTP = promptBoolean(
         "Allow unencrypted HTTP for Transmission RPC?",
         default: settings.hasAcknowledgedInsecureHTTP
@@ -199,7 +204,6 @@ enum CLIApplication {
     }
 
     let settings = settingsStore.load()
-    let hasPassword = (try passwordStore.readPassword())?.isEmpty == false
     TerminalUI.banner(version: version)
     TerminalUI.heading("Configuration")
     if let address = TransmissionEndpointResolver.serverAddress(fromRPCURL: settings.rpcURL) {
@@ -209,8 +213,24 @@ enum CLIApplication {
       TerminalUI.keyValue("rpc-url", settings.rpcURL)
       TerminalUI.keyValue("web-ui-url", settings.webUIURL)
     }
-    TerminalUI.keyValue("username", settings.username.isEmpty ? "disabled" : settings.username)
-    TerminalUI.keyValue("password", hasPassword ? "configured" : "not configured")
+    TerminalUI.keyValue(
+      "authentication",
+      settings.usesAuthentication ? "enabled" : "disabled"
+    )
+    TerminalUI.keyValue(
+      "username",
+      settings.usesAuthentication
+        ? settings.username
+        : settings.username.isEmpty
+          ? "not configured"
+          : "\(settings.username) (not used)"
+    )
+    if settings.usesAuthentication {
+      let hasPassword = (try passwordStore.readPassword())?.isEmpty == false
+      TerminalUI.keyValue("password", hasPassword ? "configured" : "not configured")
+    } else {
+      TerminalUI.keyValue("password", "not used (Keychain not inspected)")
+    }
     TerminalUI.keyValue("browser", settings.browser.bundleIdentifier ?? "system")
     TerminalUI.keyValue("timeout", "\(Int(settings.timeout)) seconds")
     TerminalUI.keyValue("open-web-ui", "\(settings.opensWebUI)")
@@ -250,8 +270,11 @@ enum CLIApplication {
       settings.rpcURL = value
     case "web-ui-url":
       settings.webUIURL = value
+    case "authentication":
+      settings.usesAuthentication = try parseBoolean(value)
     case "username":
       settings.username = value
+      settings.usesAuthentication = !value.isEmpty
     case "browser":
       settings.browser = try browserSelection(for: value)
     case "timeout":
@@ -285,11 +308,15 @@ enum CLIApplication {
     guard let rpcURL = URL(string: settings.rpcURL) else {
       throw MagnetBridgeError.invalidRPCURL
     }
+    let password =
+      settings.usesAuthentication
+      ? try passwordStore.readPassword()
+      : nil
     let client = TransmissionClient(
       configuration: TransmissionConfiguration(
         rpcURL: rpcURL,
-        username: settings.username,
-        password: try passwordStore.readPassword(),
+        username: settings.usesAuthentication ? settings.username : "",
+        password: password,
         timeout: settings.timeout,
         allowsInsecureHTTP: settings.hasAcknowledgedInsecureHTTP
       )
@@ -343,6 +370,11 @@ enum CLIApplication {
       webURL.host != nil
     else {
       throw CLIError("The Web UI URL is invalid.")
+    }
+    if settings.usesAuthentication,
+      settings.username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    {
+      throw CLIError("Basic Authentication requires a username.")
     }
     if rpcURL.scheme?.lowercased() == "http",
       !settings.hasAcknowledgedInsecureHTTP
@@ -489,7 +521,7 @@ enum CLIApplication {
     TerminalUI.line("  \(TerminalUI.command("magnetbridge version"))")
     TerminalUI.line("")
     TerminalUI.heading("Configuration keys")
-    TerminalUI.line("  server, username, password, browser, timeout,")
+    TerminalUI.line("  server, authentication, username, password, browser, timeout,")
     TerminalUI.line("  open-web-ui, start-mode, allow-http, menu-bar")
     TerminalUI.line("")
   }

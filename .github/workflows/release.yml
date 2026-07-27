@@ -35,13 +35,46 @@ jobs:
             --team-id "$APPLE_TEAM_ID" \
             --password "$APP_PASSWORD"
 
+      - name: Generate release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/releases/generate-notes" \
+            -f tag_name="${GITHUB_REF_NAME}" \
+            -f target_commitish="${GITHUB_SHA}" \
+            --jq .body \
+            > "${RUNNER_TEMP}/release-notes.md"
+
       - name: Build, sign, notarize, and package
         env:
           VERSION: ${{ github.ref_name }}
           SIGNING_IDENTITY: ${{ secrets.DEVELOPER_ID_APPLICATION }}
           NOTARY_PROFILE: ci-notary
           OUTPUT_DIRECTORY: ${{ runner.temp }}/release
-        run: scripts/release.sh
+          RELEASE_NOTES_FILE: ${{ runner.temp }}/release-notes.md
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          if [ -z "$SPARKLE_ED_PRIVATE_KEY" ]; then
+            echo "::error::SPARKLE_ED_PRIVATE_KEY is not configured."
+            exit 1
+          fi
+          SPARKLE_KEY_FILE="${RUNNER_TEMP}/magnetbridge-sparkle-key"
+          umask 077
+          printf '%s' "$SPARKLE_ED_PRIVATE_KEY" > "$SPARKLE_KEY_FILE"
+          trap 'rm -f "$SPARKLE_KEY_FILE"' EXIT
+          export SPARKLE_PRIVATE_KEY_FILE="$SPARKLE_KEY_FILE"
+          scripts/release.sh
+
+      - name: Verify release metadata
+        run: |
+          test -s "${{ runner.temp }}/release/MagnetBridge.zip"
+          test -s "${{ runner.temp }}/release/MagnetBridge.zip.sha256"
+          test -s "${{ runner.temp }}/release/magnet-bridge.rb"
+          test -s "${{ runner.temp }}/release/appcast.xml"
+          xmllint --noout "${{ runner.temp }}/release/appcast.xml"
+          grep -q 'sparkle:edSignature=' "${{ runner.temp }}/release/appcast.xml"
 
       - name: Publish GitHub release
         env:
@@ -51,7 +84,8 @@ jobs:
             "${{ runner.temp }}/release/MagnetBridge.zip" \
             "${{ runner.temp }}/release/MagnetBridge.zip.sha256" \
             "${{ runner.temp }}/release/magnet-bridge.rb" \
-            --generate-notes \
+            "${{ runner.temp }}/release/appcast.xml" \
+            --notes-file "${{ runner.temp }}/release-notes.md" \
             --title "MagnetBridge ${{ github.ref_name }}"
 
       - name: Check out Homebrew tap

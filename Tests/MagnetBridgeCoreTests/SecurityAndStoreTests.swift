@@ -38,6 +38,26 @@ final class SecurityAndStoreTests: XCTestCase {
     XCTAssertTrue(decoded.showsMenuBarIcon)
   }
 
+  func testSettingsFromOlderReleaseInfersAuthenticationFromUsername() throws {
+    var configured = AppSettings.defaults
+    configured.username = "alice"
+    configured.usesAuthentication = true
+    let currentData = try JSONEncoder().encode(configured)
+    var object = try XCTUnwrap(
+      JSONSerialization.jsonObject(with: currentData) as? [String: Any]
+    )
+    object.removeValue(forKey: "usesAuthentication")
+
+    let authenticatedData = try JSONSerialization.data(withJSONObject: object)
+    let authenticated = try JSONDecoder().decode(AppSettings.self, from: authenticatedData)
+    XCTAssertTrue(authenticated.usesAuthentication)
+
+    object["username"] = ""
+    let unauthenticatedData = try JSONSerialization.data(withJSONObject: object)
+    let unauthenticated = try JSONDecoder().decode(AppSettings.self, from: unauthenticatedData)
+    XCTAssertFalse(unauthenticated.usesAuthentication)
+  }
+
   func testDiagnosticsContainsHostsButNotFullURLsOrMagnet() {
     var settings = AppSettings.defaults
     settings.rpcURL = "https://user@example.com/private/rpc?token=secret"

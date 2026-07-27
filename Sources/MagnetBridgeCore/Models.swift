@@ -24,6 +24,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
   public var rpcURL: String
   public var webUIURL: String
   public var username: String
+  public var usesAuthentication: Bool
   public var browser: BrowserSelection
   public var timeout: TimeInterval
   public var opensWebUI: Bool
@@ -35,6 +36,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     rpcURL: "http://localhost:9091/transmission/rpc",
     webUIURL: "http://localhost:9091/transmission/web/",
     username: "",
+    usesAuthentication: false,
     browser: .systemDefault,
     timeout: 15,
     opensWebUI: true,
@@ -47,6 +49,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     rpcURL: String,
     webUIURL: String,
     username: String,
+    usesAuthentication: Bool? = nil,
     browser: BrowserSelection,
     timeout: TimeInterval,
     opensWebUI: Bool,
@@ -57,6 +60,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     self.rpcURL = rpcURL
     self.webUIURL = webUIURL
     self.username = username
+    self.usesAuthentication = usesAuthentication ?? !username.isEmpty
     self.browser = browser
     self.timeout = timeout
     self.opensWebUI = opensWebUI
@@ -69,6 +73,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     case rpcURL
     case webUIURL
     case username
+    case usesAuthentication
     case browser
     case timeout
     case opensWebUI
@@ -82,6 +87,9 @@ public struct AppSettings: Codable, Equatable, Sendable {
     rpcURL = try container.decode(String.self, forKey: .rpcURL)
     webUIURL = try container.decode(String.self, forKey: .webUIURL)
     username = try container.decode(String.self, forKey: .username)
+    usesAuthentication =
+      try container.decodeIfPresent(Bool.self, forKey: .usesAuthentication)
+      ?? !username.isEmpty
     browser = try container.decode(BrowserSelection.self, forKey: .browser)
     timeout = try container.decode(TimeInterval.self, forKey: .timeout)
     opensWebUI = try container.decode(Bool.self, forKey: .opensWebUI)
@@ -99,6 +107,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     try container.encode(rpcURL, forKey: .rpcURL)
     try container.encode(webUIURL, forKey: .webUIURL)
     try container.encode(username, forKey: .username)
+    try container.encode(usesAuthentication, forKey: .usesAuthentication)
     try container.encode(browser, forKey: .browser)
     try container.encode(timeout, forKey: .timeout)
     try container.encode(opensWebUI, forKey: .opensWebUI)

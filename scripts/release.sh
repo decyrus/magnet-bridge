@@ -4,13 +4,16 @@ set -eu
 VERSION="${VERSION:?Set VERSION, for example 0.1.0}"
 SIGNING_IDENTITY="${SIGNING_IDENTITY:?Set the Developer ID Application identity}"
 NOTARY_PROFILE="${NOTARY_PROFILE:?Set a notarytool Keychain profile}"
+SPARKLE_PRIVATE_KEY_FILE="${SPARKLE_PRIVATE_KEY_FILE:?Set the Sparkle EdDSA private key file}"
 OUTPUT_DIRECTORY="${OUTPUT_DIRECTORY:-$PWD/release}"
+RELEASE_NOTES_FILE="${RELEASE_NOTES_FILE:-}"
 BUILD_DIRECTORY="$(mktemp -d "${TMPDIR:-/tmp}/magnetbridge-release.XXXXXX")"
 trap 'rm -rf "$BUILD_DIRECTORY"' EXIT HUP INT TERM
 
 case "$VERSION" in
     v*) VERSION="${VERSION#v}" ;;
 esac
+RELEASE_TAG="v$VERSION"
 
 mkdir -p "$OUTPUT_DIRECTORY"
 xcodegen generate
@@ -41,9 +44,46 @@ case "$ARCHITECTURES" in
         ;;
 esac
 
+SPARKLE_FRAMEWORK="$APP_STAGING/Contents/Frameworks/Sparkle.framework"
+SPARKLE_VERSION_DIRECTORY="$SPARKLE_FRAMEWORK/Versions/B"
+if [ ! -d "$SPARKLE_VERSION_DIRECTORY" ]; then
+    echo "Sparkle.framework was not embedded in MagnetBridge.app" >&2
+    exit 1
+fi
+
 codesign \
     --force \
-    --deep \
+    --options runtime \
+    --timestamp \
+    --sign "$SIGNING_IDENTITY" \
+    "$SPARKLE_VERSION_DIRECTORY/XPCServices/Installer.xpc"
+codesign \
+    --force \
+    --options runtime \
+    --timestamp \
+    --preserve-metadata=entitlements \
+    --sign "$SIGNING_IDENTITY" \
+    "$SPARKLE_VERSION_DIRECTORY/XPCServices/Downloader.xpc"
+codesign \
+    --force \
+    --options runtime \
+    --timestamp \
+    --sign "$SIGNING_IDENTITY" \
+    "$SPARKLE_VERSION_DIRECTORY/Autoupdate"
+codesign \
+    --force \
+    --options runtime \
+    --timestamp \
+    --sign "$SIGNING_IDENTITY" \
+    "$SPARKLE_VERSION_DIRECTORY/Updater.app"
+codesign \
+    --force \
+    --options runtime \
+    --timestamp \
+    --sign "$SIGNING_IDENTITY" \
+    "$SPARKLE_FRAMEWORK"
+codesign \
+    --force \
     --options runtime \
     --timestamp \
     --entitlements Sources/MagnetBridgeApp/MagnetBridge.entitlements \
@@ -75,7 +115,56 @@ sed \
     packaging/homebrew/magnet-bridge.rb.template \
     > "$OUTPUT_DIRECTORY/magnet-bridge.rb"
 
+GENERATE_APPCAST="$(
+    find "$BUILD_DIRECTORY/DerivedData/SourcePackages/artifacts" \
+        -type f \
+        -path '*/Sparkle/bin/generate_appcast' \
+        -print \
+        -quit
+)"
+SIGN_UPDATE="$(
+    find "$BUILD_DIRECTORY/DerivedData/SourcePackages/artifacts" \
+        -type f \
+        -path '*/Sparkle/bin/sign_update' \
+        -print \
+        -quit
+)"
+if [ -z "$GENERATE_APPCAST" ] || [ -z "$SIGN_UPDATE" ]; then
+    echo "Sparkle release tools were not found in Xcode SourcePackages" >&2
+    exit 1
+fi
+
+APPCAST_DIRECTORY="$BUILD_DIRECTORY/appcast"
+mkdir -p "$APPCAST_DIRECTORY"
+ditto "$FINAL_ARCHIVE" "$APPCAST_DIRECTORY/MagnetBridge.zip"
+if [ -n "$RELEASE_NOTES_FILE" ]; then
+    cp "$RELEASE_NOTES_FILE" "$APPCAST_DIRECTORY/MagnetBridge.md"
+else
+    printf '# MagnetBridge %s\n\nSee the GitHub release for details.\n' \
+        "$VERSION" \
+        > "$APPCAST_DIRECTORY/MagnetBridge.md"
+fi
+
+"$GENERATE_APPCAST" \
+    --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" \
+    --download-url-prefix \
+        "https://github.com/decyrus/magnet-bridge/releases/download/$RELEASE_TAG/" \
+    --link "https://github.com/decyrus/magnet-bridge/releases/tag/$RELEASE_TAG" \
+    --full-release-notes-url \
+        "https://github.com/decyrus/magnet-bridge/releases/tag/$RELEASE_TAG" \
+    --maximum-versions 1 \
+    --maximum-deltas 0 \
+    --embed-release-notes \
+    -o "$OUTPUT_DIRECTORY/appcast.xml" \
+    "$APPCAST_DIRECTORY"
+xmllint --noout "$OUTPUT_DIRECTORY/appcast.xml"
+"$SIGN_UPDATE" \
+    --verify \
+    --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" \
+    "$OUTPUT_DIRECTORY/appcast.xml"
+
 echo "Release artifacts:"
 echo "  $FINAL_ARCHIVE"
 echo "  $FINAL_ARCHIVE.sha256"
 echo "  $OUTPUT_DIRECTORY/magnet-bridge.rb"
+echo "  $OUTPUT_DIRECTORY/appcast.xml"

@@ -37,6 +37,7 @@ private enum GUIApplication {
 @MainActor
 private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
   private let notificationService = NotificationService()
+  private let updateController = UpdateController()
   private lazy var model = AppModel(notificationService: notificationService)
   private var window: NSWindow?
   private var statusItem: NSStatusItem?
@@ -106,12 +107,12 @@ private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
   }
 
   private func createWindow() {
-    let contentView = MainView(model: model)
+    let contentView = MainView(model: model, updater: updateController)
     let hostingController = NSHostingController(rootView: contentView)
     let window = NSWindow(contentViewController: hostingController)
     window.title = "MagnetBridge"
-    window.setContentSize(NSSize(width: 600, height: 700))
-    window.minSize = NSSize(width: 560, height: 520)
+    window.setContentSize(NSSize(width: 620, height: 700))
+    window.minSize = NSSize(width: 570, height: 560)
     window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
     window.titlebarAppearsTransparent = true
     window.titleVisibility = .hidden
@@ -119,7 +120,7 @@ private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
     window.isMovableByWindowBackground = true
     window.center()
     window.delegate = self
-    window.setFrameAutosaveName("MagnetBridge.MainWindow")
+    window.setFrameAutosaveName("MagnetBridge.MainWindow.v2")
     self.window = window
   }
 
@@ -149,11 +150,10 @@ private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
     }
     let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     if let button = item.button {
-      button.image = NSImage(
-        systemSymbolName: "link.badge.plus",
-        accessibilityDescription: "MagnetBridge"
-      )
+      button.image = NSImage(named: "MenuBarIcon")
       button.image?.isTemplate = true
+      button.toolTip = "MagnetBridge"
+      button.setAccessibilityLabel("MagnetBridge")
     }
     statusItem = item
     rebuildStatusMenu()
@@ -191,6 +191,20 @@ private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
     )
     testItem.target = self
 
+    let updateItem = menu.addItem(
+      withTitle: "Check for Updates…",
+      action: #selector(checkForUpdates),
+      keyEquivalent: ""
+    )
+    updateItem.target = self
+
+    let helpItem = menu.addItem(
+      withTitle: "MagnetBridge Help",
+      action: #selector(showHelp),
+      keyEquivalent: ""
+    )
+    helpItem.target = self
+
     let defaultItem = menu.addItem(
       withTitle: "Make Default for Magnet Links",
       action: #selector(makeDefaultHandler),
@@ -210,15 +224,37 @@ private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
 
   private func configureMainMenu() {
     let mainMenu = NSMenu()
-    let appMenuItem = NSMenuItem()
+    let appMenuItem = NSMenuItem(
+      title: "MagnetBridge",
+      action: nil,
+      keyEquivalent: ""
+    )
     mainMenu.addItem(appMenuItem)
     let appMenu = NSMenu()
+    appMenu.addItem(
+      withTitle: "About MagnetBridge",
+      action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)),
+      keyEquivalent: ""
+    ).target = NSApplication.shared
+    let updateItem = appMenu.addItem(
+      withTitle: "Check for Updates…",
+      action: #selector(checkForUpdates),
+      keyEquivalent: ""
+    )
+    updateItem.target = self
+    appMenu.addItem(.separator())
     let openItem = appMenu.addItem(
       withTitle: "Open MagnetBridge…",
       action: #selector(showWindow),
       keyEquivalent: ""
     )
     openItem.target = self
+    let helpItem = appMenu.addItem(
+      withTitle: "MagnetBridge Help",
+      action: #selector(showHelp),
+      keyEquivalent: "?"
+    )
+    helpItem.target = self
     appMenu.addItem(.separator())
     appMenu.addItem(
       withTitle: "Quit MagnetBridge",
@@ -242,5 +278,16 @@ private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
       await model.makeDefaultHandler()
       rebuildStatusMenu()
     }
+  }
+
+  @objc
+  private func checkForUpdates() {
+    updateController.checkForUpdates()
+  }
+
+  @objc
+  private func showHelp() {
+    showWindow()
+    model.showsHelp = true
   }
 }

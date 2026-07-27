@@ -6,6 +6,15 @@ import Observation
 @MainActor
 @Observable
 final class AppModel {
+  struct BrowserOption: Identifiable {
+    let selection: BrowserSelection
+    let icon: NSImage
+
+    var id: String {
+      selection.bundleIdentifier ?? "system-default"
+    }
+  }
+
   struct HandlerApplication: Identifiable {
     let applicationURL: URL
     let bundleIdentifier: String
@@ -44,13 +53,14 @@ final class AppModel {
   var usesCustomEndpoints: Bool
   var passwordInput = ""
   var hasStoredPassword = false
-  var browsers: [BrowserSelection]
+  var browserOptions: [BrowserOption]
   var handlerApplications: [HandlerApplication] = []
   var pendingMagnetURL: URL?
   var notice: Notice?
   var isBusy = false
   var currentHandler = ""
   var restoreTarget = ""
+  var showsHelp = false
 
   var onMenuBarPreferenceChanged: ((Bool) -> Void)?
   var onHandlerStateChanged: (() -> Void)?
@@ -74,7 +84,10 @@ final class AppModel {
     self.usesCustomEndpoints =
       !loadedSettings.rpcURL.hasSuffix("/transmission/rpc")
       || !loadedSettings.webUIURL.hasSuffix("/transmission/web/")
-    self.browsers = browserLauncher.installedBrowsers()
+    self.browserOptions = Self.makeBrowserOptions(
+      from: browserLauncher.installedBrowsers(),
+      selectedBrowser: loadedSettings.browser
+    )
     self.urlHandler = URLHandler(
       settingsStore: settingsStore,
       passwordStore: passwordStore,
@@ -90,6 +103,12 @@ final class AppModel {
       settings.showsMenuBarIcon = newValue
       onMenuBarPreferenceChanged?(newValue)
     }
+  }
+
+  func setAuthenticationEnabled(_ isEnabled: Bool) {
+    settings.usesAuthentication = isEnabled
+    passwordInput = ""
+    refreshPasswordState()
   }
 
   var isUsingInsecureHTTP: Bool {
@@ -204,12 +223,17 @@ final class AppModel {
       guard let rpcURL = URL(string: normalized.rpcURL) else {
         throw MagnetBridgeError.invalidRPCURL
       }
-      let password =
-        passwordInput.isEmpty ? try passwordStore.readPassword() : passwordInput
+      let password: String?
+      if normalized.usesAuthentication {
+        password =
+          passwordInput.isEmpty ? try passwordStore.readPassword() : passwordInput
+      } else {
+        password = nil
+      }
       let client = TransmissionClient(
         configuration: TransmissionConfiguration(
           rpcURL: rpcURL,
-          username: normalized.username,
+          username: normalized.usesAuthentication ? normalized.username : "",
           password: password,
           timeout: normalized.timeout,
           allowsInsecureHTTP: normalized.hasAcknowledgedInsecureHTTP
@@ -305,6 +329,12 @@ final class AppModel {
     guard (3...60).contains(normalized.timeout) else {
       throw AppModelError.invalidTimeout
     }
+    normalized.username = normalized.username.trimmingCharacters(
+      in: .whitespacesAndNewlines
+    )
+    if normalized.usesAuthentication, normalized.username.isEmpty {
+      throw AppModelError.missingUsername
+    }
     if rpcURL.scheme?.lowercased() == "http",
       !normalized.hasAcknowledgedInsecureHTTP
     {
@@ -314,8 +344,50 @@ final class AppModel {
   }
 
   private func refreshLocalState() {
-    hasStoredPassword = (try? passwordStore.readPassword())?.isEmpty == false
+    refreshPasswordState()
     refreshHandlerState()
+  }
+
+  private func refreshPasswordState() {
+    guard settings.usesAuthentication else {
+      hasStoredPassword = false
+      return
+    }
+    hasStoredPassword = (try? passwordStore.readPassword())?.isEmpty == false
+  }
+
+  private static func makeBrowserOptions(
+    from installedBrowsers: [BrowserSelection],
+    selectedBrowser: BrowserSelection
+  ) -> [BrowserOption] {
+    var browsers = installedBrowsers
+    if !browsers.contains(selectedBrowser) {
+      browsers.append(selectedBrowser)
+    }
+
+    return browsers.map { browser in
+      let icon: NSImage
+      if let bundleIdentifier = browser.bundleIdentifier,
+        let applicationURL = NSWorkspace.shared.urlForApplication(
+          withBundleIdentifier: bundleIdentifier
+        )
+      {
+        icon = NSWorkspace.shared.icon(forFile: applicationURL.path)
+      } else if browser.bundleIdentifier == nil,
+        let sampleURL = URL(string: "https://example.invalid"),
+        let applicationURL = NSWorkspace.shared.urlForApplication(toOpen: sampleURL)
+      {
+        icon = NSWorkspace.shared.icon(forFile: applicationURL.path)
+      } else {
+        icon =
+          NSImage(
+            systemSymbolName: "app.dashed",
+            accessibilityDescription: browser.displayName
+          ) ?? NSImage()
+      }
+      icon.size = NSSize(width: 18, height: 18)
+      return BrowserOption(selection: browser, icon: icon)
+    }
   }
 
   private func discoverAlternativeHandlers(for url: URL) -> [HandlerApplication] {
@@ -365,6 +437,7 @@ final class AppModel {
 private enum AppModelError: LocalizedError {
   case invalidWebUIURL
   case invalidTimeout
+  case missingUsername
 
   var errorDescription: String? {
     switch self {
@@ -372,6 +445,8 @@ private enum AppModelError: LocalizedError {
       "The Transmission Web UI URL is invalid."
     case .invalidTimeout:
       "The timeout must be between 3 and 60 seconds."
+    case .missingUsername:
+      "Enter a username or turn off Basic Authentication."
     }
   }
 }
