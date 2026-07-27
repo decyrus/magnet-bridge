@@ -25,6 +25,32 @@ final class SecurityAndStoreTests: XCTestCase {
     XCTAssertFalse(String(decoding: encoded, as: UTF8.self).lowercased().contains("password"))
   }
 
+  func testConfigurationDropsCredentialsWhenAuthenticationIsOff() throws {
+    var settings = AppSettings.defaults
+    settings.rpcURL = "https://example.com/transmission/rpc"
+    settings.username = "alice"
+    settings.usesAuthentication = false
+
+    let configuration = try TransmissionConfiguration(
+      settings: settings,
+      password: "secret-password"
+    )
+
+    XCTAssertEqual(configuration.username, "")
+    XCTAssertNil(configuration.password)
+  }
+
+  func testConfigurationRejectsAnUnparsableRPCURL() {
+    var settings = AppSettings.defaults
+    settings.rpcURL = ""
+
+    XCTAssertThrowsError(
+      try TransmissionConfiguration(settings: settings, password: nil)
+    ) { error in
+      XCTAssertEqual(error as? MagnetBridgeError, .invalidRPCURL)
+    }
+  }
+
   func testSettingsRoundTripPreservesEveryProperty() throws {
     let settings = AppSettings(
       rpcURL: "https://example.com/transmission/rpc",

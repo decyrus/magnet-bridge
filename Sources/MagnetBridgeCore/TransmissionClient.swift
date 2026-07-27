@@ -40,6 +40,23 @@ public struct TransmissionConfiguration: Equatable, Sendable {
     self.timeout = timeout
     self.allowsInsecureHTTP = allowsInsecureHTTP
   }
+
+  /// Builds the configuration described by `settings`.
+  ///
+  /// Credentials are carried only while Basic Authentication is enabled, so a
+  /// disabled toggle cannot put a stored username or password on the wire.
+  public init(settings: AppSettings, password: String?) throws {
+    guard let rpcURL = URL(string: settings.rpcURL) else {
+      throw MagnetBridgeError.invalidRPCURL
+    }
+    self.init(
+      rpcURL: rpcURL,
+      username: settings.usesAuthentication ? settings.username : "",
+      password: settings.usesAuthentication ? password : nil,
+      timeout: settings.timeout,
+      allowsInsecureHTTP: settings.hasAcknowledgedInsecureHTTP
+    )
+  }
 }
 
 public actor TransmissionClient {

@@ -223,9 +223,6 @@ final class AppModel {
     notice = .progress("Testing the Transmission connection…")
     do {
       let normalized = try normalizedSettings()
-      guard let rpcURL = URL(string: normalized.rpcURL) else {
-        throw MagnetBridgeError.invalidRPCURL
-      }
       let password: String?
       if normalized.usesAuthentication {
         password =
@@ -234,12 +231,9 @@ final class AppModel {
         password = nil
       }
       let client = TransmissionClient(
-        configuration: TransmissionConfiguration(
-          rpcURL: rpcURL,
-          username: normalized.usesAuthentication ? normalized.username : "",
-          password: password,
-          timeout: normalized.timeout,
-          allowsInsecureHTTP: normalized.hasAcknowledgedInsecureHTTP
+        configuration: try TransmissionConfiguration(
+          settings: normalized,
+          password: password
         )
       )
       let info = try await client.testConnection()

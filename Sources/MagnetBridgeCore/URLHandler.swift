@@ -34,20 +34,14 @@ public actor URLHandler {
     do {
       let magnet = try validator.validate(url)
       let settings = settingsStore.load()
-      guard let rpcURL = URL(string: settings.rpcURL) else {
-        throw MagnetBridgeError.invalidRPCURL
-      }
       let password =
         settings.usesAuthentication
         ? try passwordStore.readPassword()
         : nil
       let client = TransmissionClient(
-        configuration: TransmissionConfiguration(
-          rpcURL: rpcURL,
-          username: settings.usesAuthentication ? settings.username : "",
-          password: password,
-          timeout: settings.timeout,
-          allowsInsecureHTTP: settings.hasAcknowledgedInsecureHTTP
+        configuration: try TransmissionConfiguration(
+          settings: settings,
+          password: password
         ),
         session: session
       )
