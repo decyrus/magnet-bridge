@@ -22,6 +22,8 @@ enum CLIApplication {
         try await restoreMagnetHandler()
       case "status":
         await showStatus()
+      case "diagnostics":
+        await showDiagnostics()
       case "config":
         try await runConfig(Array(arguments.dropFirst()))
       case "version", "--version", "-v":
@@ -324,6 +326,41 @@ enum CLIApplication {
     )
   }
 
+  /// Prints a report to paste into a bug report. A failing connection is part
+  /// of the report rather than a reason to fail, so this never throws.
+  private static func showDiagnostics() async {
+    let settings = settingsStore.load()
+    var connection: ConnectionInfo?
+    var messages: [String] = []
+    do {
+      let validated = try settingsValidator.validated(settings)
+      let password =
+        validated.usesAuthentication
+        ? try passwordStore.readPassword()
+        : nil
+      let client = TransmissionClient(
+        configuration: try TransmissionConfiguration(
+          settings: validated,
+          password: password
+        )
+      )
+      connection = try await client.testConnection()
+    } catch {
+      messages.append(error.localizedDescription)
+    }
+
+    TerminalUI.banner(version: version)
+    TerminalUI.heading("Diagnostics")
+    TerminalUI.line(
+      DiagnosticsService().report(
+        settings: settings,
+        connection: connection,
+        recentMessages: messages,
+        appVersion: version
+      )
+    )
+  }
+
   private static func prompt(_ label: String, default defaultValue: String) -> String {
     TerminalUI.write(TerminalUI.prompt(label, default: defaultValue))
     let value = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -454,6 +491,7 @@ enum CLIApplication {
     TerminalUI.line("  \(TerminalUI.command("magnetbridge register"))")
     TerminalUI.line("  \(TerminalUI.command("magnetbridge unregister"))")
     TerminalUI.line("  \(TerminalUI.command("magnetbridge status"))")
+    TerminalUI.line("  \(TerminalUI.command("magnetbridge diagnostics"))")
     TerminalUI.line(
       "  \(TerminalUI.command("magnetbridge config show")) \(TerminalUI.muted("[--advanced]"))"
     )

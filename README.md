@@ -175,7 +175,15 @@ magnetbridge register
 magnetbridge unregister
 magnetbridge test
 magnetbridge config show
+magnetbridge diagnostics
 ```
+
+`magnetbridge diagnostics` prints the report to attach to a bug report: the
+macOS and app versions, the RPC and Web UI hosts without their paths or query
+strings, the current settings, and the result of a connection attempt. Magnet
+links and the configured username are redacted, and the Keychain password is
+never read. The same report is available in the app from **MagnetBridge Help ▸
+Copy Diagnostics**.
 
 Configuration can also be scripted:
 

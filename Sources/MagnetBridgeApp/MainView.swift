@@ -29,7 +29,7 @@ struct MainView: View {
     .frame(minWidth: 570, idealWidth: 620, maxWidth: 700, minHeight: 560)
     .background(Color(nsColor: .windowBackgroundColor))
     .sheet(isPresented: $model.showsHelp) {
-      HelpView(updater: updater)
+      HelpView(model: model, updater: updater)
     }
     .onChange(of: model.pendingMagnetURL?.absoluteString) {
       showsSettingsForPendingLink = false
@@ -469,6 +469,7 @@ private struct SettingsView: View {
 }
 
 private struct HelpView: View {
+  @Bindable var model: AppModel
   @Bindable var updater: UpdateController
   @Environment(\.dismiss) private var dismiss
 
@@ -542,6 +543,12 @@ private struct HelpView: View {
           updater.checkForUpdates()
         }
       }
+
+      Button("Copy Diagnostics") {
+        model.copyDiagnostics()
+        dismiss()
+      }
+      .help("Copies a report with hosts and settings, without credentials or magnet links.")
 
       Divider()
 

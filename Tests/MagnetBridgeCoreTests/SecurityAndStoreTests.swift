@@ -121,4 +121,33 @@ final class SecurityAndStoreTests: XCTestCase {
     XCTAssertFalse(report.contains("token=secret"))
     XCTAssertFalse(report.contains("0123456789abcdef"))
   }
+
+  func testDiagnosticsRedactsTheConfiguredUsername() {
+    var settings = AppSettings.defaults
+    settings.rpcURL = "https://example.com/transmission/rpc"
+    settings.username = "transmission-admin"
+    settings.usesAuthentication = true
+
+    let report = DiagnosticsService().report(
+      settings: settings,
+      recentMessages: ["Rejected the credentials for transmission-admin"],
+      appVersion: "1.2.3"
+    )
+
+    XCTAssertTrue(report.contains("MagnetBridge: 1.2.3"))
+    XCTAssertTrue(report.contains("Authentication: enabled"))
+    XCTAssertFalse(report.contains("transmission-admin"))
+  }
+
+  func testDiagnosticsKeepsShortUsernamesOutOfTheRedactionList() {
+    var settings = AppSettings.defaults
+    settings.rpcURL = "https://example.com/transmission/rpc"
+    settings.username = "ab"
+    settings.usesAuthentication = true
+
+    let report = DiagnosticsService().report(settings: settings)
+
+    XCTAssertTrue(report.contains("RPC host: example.com"))
+    XCTAssertFalse(report.contains("[REDACTED]"))
+  }
 }

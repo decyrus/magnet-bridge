@@ -242,6 +242,20 @@ final class AppModel {
     isBusy = false
   }
 
+  /// Copies a redacted report for bug reports. It reuses the last notice as
+  /// the recent message, which is where the current failure, if any, is
+  /// already described.
+  func copyDiagnostics() {
+    let report = DiagnosticsService().report(
+      settings: settings,
+      recentMessages: notice.map { [$0.message] } ?? [],
+      appVersion: AppVersion.short
+    )
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(report, forType: .string)
+    notice = .success("Diagnostics copied to the clipboard.")
+  }
+
   func removeStoredPassword() {
     do {
       try passwordStore.deletePassword()
