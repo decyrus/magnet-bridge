@@ -395,7 +395,7 @@ private struct SettingsView: View {
           Stepper(
             "\(Int(model.settings.timeout)) seconds",
             value: $model.settings.timeout,
-            in: 3...60,
+            in: SettingsValidator.allowedTimeouts,
             step: 1
           )
           .frame(width: 160, alignment: .leading)

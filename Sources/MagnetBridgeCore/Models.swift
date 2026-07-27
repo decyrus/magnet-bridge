@@ -143,6 +143,9 @@ public enum TransmissionProtocol: String, Codable, Sendable {
 public enum MagnetBridgeError: Error, Equatable, LocalizedError, Sendable {
   case invalidMagnet(String)
   case invalidRPCURL
+  case invalidWebUIURL
+  case invalidTimeout
+  case missingUsername
   case insecureHTTPRequiresConfirmation
   case authenticationFailed
   case serverUnavailable
@@ -159,6 +162,13 @@ public enum MagnetBridgeError: Error, Equatable, LocalizedError, Sendable {
       "Invalid magnet link: \(reason)"
     case .invalidRPCURL:
       "The Transmission RPC URL is invalid."
+    case .invalidWebUIURL:
+      "The Transmission Web UI URL is invalid."
+    case .invalidTimeout:
+      "The timeout must be between \(Int(SettingsValidator.allowedTimeouts.lowerBound)) "
+        + "and \(Int(SettingsValidator.allowedTimeouts.upperBound)) seconds."
+    case .missingUsername:
+      "Enter a username or turn off Basic Authentication."
     case .insecureHTTPRequiresConfirmation:
       "This HTTP connection is not encrypted. Allow HTTP in MagnetBridge settings first."
     case .authenticationFailed:

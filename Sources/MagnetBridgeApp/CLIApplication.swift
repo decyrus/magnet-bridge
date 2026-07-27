@@ -40,6 +40,7 @@ enum CLIApplication {
 
   private static let settingsStore = SettingsStore()
   private static let passwordStore = KeychainStore()
+  private static let settingsValidator = SettingsValidator()
 
   private static var version: String {
     if let bundleVersion = Bundle.main.object(
@@ -153,8 +154,7 @@ enum CLIApplication {
       settings.hasAcknowledgedInsecureHTTP = false
     }
 
-    try validate(settings)
-    try settingsStore.save(settings)
+    try settingsStore.save(try settingsValidator.validated(settings))
     if let passwordUpdate {
       if passwordUpdate.isEmpty {
         try passwordStore.deletePassword()
@@ -278,8 +278,8 @@ enum CLIApplication {
     case "browser":
       settings.browser = try browserSelection(for: value)
     case "timeout":
-      guard let timeout = TimeInterval(value), (3...60).contains(timeout) else {
-        throw CLIError("Timeout must be between 3 and 60 seconds.")
+      guard let timeout = TimeInterval(value) else {
+        throw CLIError("Timeout must be a number of seconds.")
       }
       settings.timeout = timeout
     case "open-web-ui":
@@ -297,14 +297,12 @@ enum CLIApplication {
       throw CLIError("Unknown configuration key: \(key)")
     }
 
-    try validate(settings)
-    try settingsStore.save(settings)
+    try settingsStore.save(try settingsValidator.validated(settings))
     TerminalUI.success("\(key) updated")
   }
 
   private static func testConnection() async throws {
-    let settings = settingsStore.load()
-    try validate(settings)
+    let settings = try settingsValidator.validated(settingsStore.load())
     let password =
       settings.usesAuthentication
       ? try passwordStore.readPassword()
@@ -349,35 +347,6 @@ enum CLIApplication {
     )
   }
 
-  private static func validate(_ settings: AppSettings) throws {
-    guard
-      let rpcURL = URL(string: settings.rpcURL),
-      ["http", "https"].contains(rpcURL.scheme?.lowercased()),
-      rpcURL.host != nil,
-      rpcURL.user == nil,
-      rpcURL.password == nil
-    else {
-      throw MagnetBridgeError.invalidRPCURL
-    }
-    guard
-      let webURL = URL(string: settings.webUIURL),
-      ["http", "https"].contains(webURL.scheme?.lowercased()),
-      webURL.host != nil
-    else {
-      throw CLIError("The Web UI URL is invalid.")
-    }
-    if settings.usesAuthentication,
-      settings.username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    {
-      throw CLIError("Basic Authentication requires a username.")
-    }
-    if rpcURL.scheme?.lowercased() == "http",
-      !settings.hasAcknowledgedInsecureHTTP
-    {
-      throw MagnetBridgeError.insecureHTTPRequiresConfirmation
-    }
-  }
-
   private static func prompt(_ label: String, default defaultValue: String) -> String {
     TerminalUI.write(TerminalUI.prompt(label, default: defaultValue))
     let value = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -400,12 +369,15 @@ enum CLIApplication {
   }
 
   private static func promptTimeout(default defaultValue: TimeInterval) -> TimeInterval {
+    let allowed = SettingsValidator.allowedTimeouts
     while true {
       let value = prompt("Connection timeout in seconds", default: "\(Int(defaultValue))")
-      if let timeout = TimeInterval(value), (3...60).contains(timeout) {
+      if let timeout = TimeInterval(value), allowed.contains(timeout) {
         return timeout
       }
-      TerminalUI.warning("Enter a number between 3 and 60.")
+      TerminalUI.warning(
+        "Enter a number between \(Int(allowed.lowerBound)) and \(Int(allowed.upperBound))."
+      )
     }
   }
 

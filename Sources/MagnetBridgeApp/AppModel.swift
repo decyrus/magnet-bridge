@@ -47,6 +47,7 @@ final class AppModel {
   private let notificationService: NotificationService
   private let urlHandler: URLHandler
   private let validator = MagnetValidator()
+  private let settingsValidator = SettingsValidator()
 
   var settings: AppSettings
   var serverAddress: String
@@ -293,52 +294,14 @@ final class AppModel {
 
   private func normalizedSettings() throws -> AppSettings {
     var normalized = settings
-    if usesCustomEndpoints {
-      normalized.rpcURL = normalized.rpcURL.trimmingCharacters(
-        in: .whitespacesAndNewlines
-      )
-      normalized.webUIURL = normalized.webUIURL.trimmingCharacters(
-        in: .whitespacesAndNewlines
-      )
-    } else {
+    if !usesCustomEndpoints {
       let endpoints = try TransmissionEndpointResolver.resolve(
         serverAddress: serverAddress
       )
       normalized.rpcURL = endpoints.rpcURL
       normalized.webUIURL = endpoints.webUIURL
     }
-
-    guard
-      let rpcURL = URL(string: normalized.rpcURL),
-      ["http", "https"].contains(rpcURL.scheme?.lowercased()),
-      rpcURL.host != nil,
-      rpcURL.user == nil,
-      rpcURL.password == nil
-    else {
-      throw MagnetBridgeError.invalidRPCURL
-    }
-    guard
-      let webURL = URL(string: normalized.webUIURL),
-      ["http", "https"].contains(webURL.scheme?.lowercased()),
-      webURL.host != nil
-    else {
-      throw AppModelError.invalidWebUIURL
-    }
-    guard (3...60).contains(normalized.timeout) else {
-      throw AppModelError.invalidTimeout
-    }
-    normalized.username = normalized.username.trimmingCharacters(
-      in: .whitespacesAndNewlines
-    )
-    if normalized.usesAuthentication, normalized.username.isEmpty {
-      throw AppModelError.missingUsername
-    }
-    if rpcURL.scheme?.lowercased() == "http",
-      !normalized.hasAcknowledgedInsecureHTTP
-    {
-      throw MagnetBridgeError.insecureHTTPRequiresConfirmation
-    }
-    return normalized
+    return try settingsValidator.validated(normalized)
   }
 
   private func refreshLocalState() {
@@ -412,22 +375,5 @@ final class AppModel {
       )
     }
     .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-  }
-}
-
-private enum AppModelError: LocalizedError {
-  case invalidWebUIURL
-  case invalidTimeout
-  case missingUsername
-
-  var errorDescription: String? {
-    switch self {
-    case .invalidWebUIURL:
-      "The Transmission Web UI URL is invalid."
-    case .invalidTimeout:
-      "The timeout must be between 3 and 60 seconds."
-    case .missingUsername:
-      "Enter a username or turn off Basic Authentication."
-    }
   }
 }
