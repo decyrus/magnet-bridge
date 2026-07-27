@@ -10,23 +10,28 @@ enum MagnetBridgeMain {
     let arguments = Array(CommandLine.arguments.dropFirst())
     let executableName = URL(fileURLWithPath: CommandLine.arguments[0])
       .lastPathComponent
-    if !arguments.isEmpty || executableName == "magnetbridge" {
+    let magnetURLs = arguments.compactMap { argument -> URL? in
+      guard argument.lowercased().hasPrefix("magnet:") else { return nil }
+      return URL(string: argument)
+    }
+
+    if magnetURLs.isEmpty, !arguments.isEmpty || executableName == "magnetbridge" {
       Task {
         let exitCode = await CLIApplication.run(arguments)
         exit(exitCode)
       }
       RunLoop.main.run()
     } else {
-      GUIApplication.run()
+      GUIApplication.run(magnetURLs: magnetURLs)
     }
   }
 }
 
 private enum GUIApplication {
   @MainActor
-  static func run() {
+  static func run(magnetURLs: [URL]) {
     let application = NSApplication.shared
-    let delegate = ApplicationDelegate()
+    let delegate = ApplicationDelegate(launchMagnetURLs: magnetURLs)
     application.delegate = delegate
     withExtendedLifetime(delegate) {
       application.run()
@@ -39,8 +44,14 @@ private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
   private let notificationService = NotificationService()
   private let updateController = UpdateController()
   private lazy var model = AppModel(notificationService: notificationService)
+  private let launchMagnetURLs: [URL]
   private var window: NSWindow?
   private var statusItem: NSStatusItem?
+
+  init(launchMagnetURLs: [URL]) {
+    self.launchMagnetURLs = launchMagnetURLs
+    super.init()
+  }
 
   func applicationWillFinishLaunching(_ notification: Notification) {
     NSAppleEventManager.shared().setEventHandler(
@@ -61,6 +72,9 @@ private final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSWind
     configureMainMenu()
     createWindow()
     applyPresentationMode(showsMenuBarIcon: model.settings.showsMenuBarIcon)
+    if let launchMagnetURL = launchMagnetURLs.first {
+      model.receive(launchMagnetURL)
+    }
     showWindow()
 
     Task {
