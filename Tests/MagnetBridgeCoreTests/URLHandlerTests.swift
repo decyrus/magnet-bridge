@@ -43,7 +43,7 @@ final class URLHandlerTests: XCTestCase {
     XCTAssertEqual(launch?.url.absoluteString, settings.webUIURL)
     XCTAssertEqual(launch?.browser, settings.browser)
     let shownNotifications = await notifications.notifications
-    XCTAssertTrue(shownNotifications.contains { $0.title == "Торрент уже добавлен" })
+    XCTAssertTrue(shownNotifications.contains { $0.title == "Torrent Already Added" })
   }
 
   func testInvalidMagnetNeverContactsServerOrBrowser() async throws {

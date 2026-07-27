@@ -18,13 +18,13 @@ public struct MagnetValidator: Sendable {
   public func validate(_ url: URL) throws -> ValidatedMagnet {
     let raw = url.absoluteString
     guard raw.utf8.count <= Self.maximumLength else {
-      throw MagnetBridgeError.invalidMagnet("длина превышает 32 КБ")
+      throw MagnetBridgeError.invalidMagnet("the link exceeds 32 KB")
     }
     guard url.scheme?.lowercased() == "magnet" else {
-      throw MagnetBridgeError.invalidMagnet("ожидается схема magnet")
+      throw MagnetBridgeError.invalidMagnet("the URL scheme must be magnet")
     }
     guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-      throw MagnetBridgeError.invalidMagnet("URL не удалось разобрать")
+      throw MagnetBridgeError.invalidMagnet("the URL could not be parsed")
     }
 
     let exactTopics =
@@ -34,7 +34,7 @@ public struct MagnetValidator: Sendable {
     let hashes = exactTopics.compactMap(parseExactTopic)
     guard !hashes.isEmpty else {
       throw MagnetBridgeError.invalidMagnet(
-        "отсутствует поддерживаемый параметр xt=urn:btih:… или xt=urn:btmh:…")
+        "a supported xt=urn:btih:… or xt=urn:btmh:… parameter is required")
     }
 
     return ValidatedMagnet(url: url, infoHashes: hashes)

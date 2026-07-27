@@ -70,12 +70,12 @@ final class AppModel {
       switch result {
       case .added(let torrent):
         operationState = .success(
-          title: "Торрент добавлен",
+          title: "Torrent Added",
           detail: torrent.name
         )
       case .duplicate(let torrent):
         operationState = .success(
-          title: "Торрент уже добавлен",
+          title: "Torrent Already Added",
           detail: torrent.name
         )
       case .failed(let error):
@@ -105,7 +105,7 @@ final class AppModel {
       } else {
         try keychainStore.savePassword(password)
       }
-      saveMessage = "Настройки сохранены"
+      saveMessage = "Settings saved"
     } catch {
       saveMessage = error.localizedDescription
     }
@@ -130,7 +130,7 @@ final class AppModel {
         )
         let info = try await client.testConnection()
         connectionState = .success(
-          "Transmission \(info.version), RPC \(info.protocolVersion ?? "неизвестно") (\(info.protocolKind == .jsonRPC2 ? "JSON-RPC 2.0" : "legacy"))"
+          "Transmission \(info.version), RPC \(info.protocolVersion ?? "unknown") (\(info.protocolKind == .jsonRPC2 ? "JSON-RPC 2.0" : "legacy"))"
         )
       } catch {
         connectionState = .failure(error.localizedDescription)
@@ -153,7 +153,7 @@ final class AppModel {
       ["http", "https"].contains(webURL.scheme?.lowercased()),
       webURL.host != nil
     else {
-      throw MagnetBridgeError.rpcError("Некорректный URL Web UI.")
+      throw MagnetBridgeError.rpcError("The Web UI URL is invalid.")
     }
     if rpcURL.scheme?.lowercased() == "http",
       !settings.hasAcknowledgedInsecureHTTP

@@ -13,21 +13,21 @@ struct SettingsView: View {
         TextField("Web UI URL", text: $model.settings.webUIURL)
           .textFieldStyle(.roundedBorder)
           .accessibilityIdentifier("web-ui-url")
-        TextField("Имя пользователя", text: $model.settings.username)
+        TextField("Username", text: $model.settings.username)
           .textFieldStyle(.roundedBorder)
-        SecureField("Пароль", text: $model.password)
+        SecureField("Password", text: $model.password)
           .textFieldStyle(.roundedBorder)
 
         if usesInsecureHTTP {
           Toggle(
-            "Я понимаю, что HTTP передаёт данные без шифрования",
+            "I understand that HTTP sends data without encryption",
             isOn: $model.settings.hasAcknowledgedInsecureHTTP
           )
           .foregroundStyle(.orange)
         }
 
         HStack {
-          Button("Проверить соединение") {
+          Button("Test Connection") {
             model.testConnection()
           }
           .disabled(model.connectionState == .testing)
@@ -36,8 +36,8 @@ struct SettingsView: View {
         }
       }
 
-      Section("Поведение") {
-        Picker("Браузер", selection: $model.settings.browser) {
+      Section("Behavior") {
+        Picker("Browser", selection: $model.settings.browser) {
           ForEach(model.browsers, id: \.self) { browser in
             Text(browser.displayName).tag(browser)
           }
@@ -46,25 +46,25 @@ struct SettingsView: View {
           model.refreshBrowsers()
         }
 
-        Picker("Запуск торрента", selection: $model.settings.startMode) {
-          Text("Сразу").tag(TorrentStartMode.immediately)
-          Text("Приостановлен").tag(TorrentStartMode.paused)
+        Picker("Start New Torrents", selection: $model.settings.startMode) {
+          Text("Immediately").tag(TorrentStartMode.immediately)
+          Text("Paused").tag(TorrentStartMode.paused)
         }
 
         HStack {
-          Text("Тайм-аут")
+          Text("Timeout")
           Slider(value: $model.settings.timeout, in: 3...60, step: 1)
-          Text("\(Int(model.settings.timeout)) с")
+          Text("\(Int(model.settings.timeout)) sec")
             .monospacedDigit()
-            .frame(width: 40, alignment: .trailing)
+            .frame(width: 58, alignment: .trailing)
         }
 
-        Toggle("Открывать Web UI после добавления", isOn: $model.settings.opensWebUI)
+        Toggle("Open Web UI after adding a torrent", isOn: $model.settings.opensWebUI)
       }
 
       Section {
         HStack {
-          Text("Пароль хранится только в macOS Keychain.")
+          Text("The password is stored only in macOS Keychain.")
             .font(.caption)
             .foregroundStyle(.secondary)
           Spacer()
@@ -73,7 +73,7 @@ struct SettingsView: View {
               .font(.caption)
               .foregroundStyle(.secondary)
           }
-          Button("Сохранить") {
+          Button("Save") {
             model.saveSettings()
           }
           .keyboardShortcut(.defaultAction)

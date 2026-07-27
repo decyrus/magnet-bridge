@@ -22,16 +22,16 @@ struct ContentView: View {
 
       HStack {
         SettingsLink {
-          Label("Настройки", systemImage: "gear")
+          Label("Settings", systemImage: "gear")
         }
 
         if case .failure = model.operationState {
-          Button("Копировать ссылку") {
+          Button("Copy Link") {
             model.copyLastURL()
           }
           .disabled(model.lastIncomingURL == nil)
 
-          Button("Повторить") {
+          Button("Retry") {
             model.retry()
           }
           .buttonStyle(.borderedProminent)
@@ -61,19 +61,19 @@ struct ContentView: View {
 
   private var title: String {
     switch model.operationState {
-    case .idle: "Готов к magnet-ссылкам"
-    case .processing: "Добавляю торрент…"
+    case .idle: "Ready for Magnet Links"
+    case .processing: "Adding Torrent…"
     case .success(let title, _): title
-    case .failure: "Не удалось добавить торрент"
+    case .failure: "Couldn’t Add Torrent"
     }
   }
 
   private var detail: String {
     switch model.operationState {
     case .idle:
-      "Нажмите magnet-ссылку в Safari, Chrome или другом приложении."
+      "Click a magnet link in Safari, Chrome, or another application."
     case .processing:
-      "Связываюсь с Transmission."
+      "Connecting to Transmission."
     case .success(_, let detail):
       detail
     case .failure(let message):

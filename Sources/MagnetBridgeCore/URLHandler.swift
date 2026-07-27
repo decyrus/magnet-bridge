@@ -58,13 +58,13 @@ public actor URLHandler {
       case .added(let torrent):
         result = .added(torrent)
         await notificationService.show(
-          title: "Торрент добавлен",
+          title: "Torrent Added",
           body: torrent.name
         )
       case .duplicate(let torrent):
         result = .duplicate(torrent)
         await notificationService.show(
-          title: "Торрент уже добавлен",
+          title: "Torrent Already Added",
           body: torrent.name
         )
       }
@@ -77,13 +77,13 @@ public actor URLHandler {
           )
           if launch.usedFallback {
             await notificationService.show(
-              title: "Браузер не найден",
-              body: "Web UI открыт в системном браузере."
+              title: "Browser Not Found",
+              body: "The Web UI was opened in the system default browser."
             )
           }
         } catch {
           await notificationService.show(
-            title: "Не удалось открыть Web UI",
+            title: "Couldn’t Open Web UI",
             body: error.localizedDescription
           )
         }
@@ -91,14 +91,14 @@ public actor URLHandler {
       return result
     } catch let error as MagnetBridgeError {
       await notificationService.show(
-        title: "Не удалось добавить торрент",
+        title: "Couldn’t Add Torrent",
         body: error.localizedDescription
       )
       return .failed(error)
     } catch {
       let mapped = MagnetBridgeError.rpcError(error.localizedDescription)
       await notificationService.show(
-        title: "Не удалось добавить торрент",
+        title: "Couldn’t Add Torrent",
         body: mapped.localizedDescription
       )
       return .failed(mapped)

@@ -11,7 +11,7 @@ public struct BrowserSelection: Codable, Equatable, Hashable, Sendable {
 
   public static let systemDefault = BrowserSelection(
     bundleIdentifier: nil,
-    displayName: "Системный браузер"
+    displayName: "System Default Browser"
   )
 
   public init(bundleIdentifier: String?, displayName: String) {
@@ -116,27 +116,27 @@ public enum MagnetBridgeError: Error, Equatable, LocalizedError, Sendable {
   public var errorDescription: String? {
     switch self {
     case .invalidMagnet(let reason):
-      "Некорректная magnet-ссылка: \(reason)"
+      "Invalid magnet link: \(reason)"
     case .invalidRPCURL:
-      "Некорректный URL Transmission RPC."
+      "The Transmission RPC URL is invalid."
     case .insecureHTTPRequiresConfirmation:
-      "HTTP-соединение не зашифровано. Подтвердите его использование в настройках."
+      "This HTTP connection is not encrypted. Confirm its use in Settings."
     case .authenticationFailed:
-      "Transmission отклонил имя пользователя или пароль."
+      "Transmission rejected the username or password."
     case .serverUnavailable:
-      "Сервер Transmission недоступен."
+      "The Transmission server is unavailable."
     case .timedOut:
-      "Transmission не ответил за отведённое время."
+      "Transmission did not respond within the configured timeout."
     case .serverError(let status):
-      "Transmission вернул ошибку HTTP \(status)."
+      "Transmission returned HTTP error \(status)."
     case .invalidResponse:
-      "Transmission вернул некорректный ответ."
+      "Transmission returned an invalid response."
     case .rpcError(let message):
-      "Ошибка Transmission: \(message)"
+      "Transmission error: \(message)"
     case .keychain:
-      "Не удалось получить пароль из Keychain."
+      "The password could not be retrieved from Keychain."
     case .browserUnavailable(let name):
-      "Браузер «\(name)» недоступен; используется системный браузер."
+      "The browser “\(name)” is unavailable."
     }
   }
 }

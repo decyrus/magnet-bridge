@@ -38,6 +38,40 @@ curl -fLO https://github.com/decyrus/magnet-bridge/releases/latest/download/magn
 brew install --cask ./magnet-bridge.rb
 ```
 
+## Uninstall
+
+If MagnetBridge was installed with Homebrew:
+
+```sh
+brew uninstall --cask magnet-bridge
+```
+
+To remove the app and its saved preferences:
+
+```sh
+brew uninstall --zap --cask magnet-bridge
+```
+
+For a manual or one-line installation, quit MagnetBridge and move
+`MagnetBridge.app` from `/Applications` or `~/Applications` to the Trash.
+
+The Transmission password is intentionally left in macOS Keychain during a
+normal uninstall. To remove it as well, open **Keychain Access**, search for
+`org.magnetbridge.app`, and delete the item whose account is
+`transmission-rpc`. Alternatively:
+
+```sh
+security delete-generic-password \
+  -s org.magnetbridge.app \
+  -a transmission-rpc
+```
+
+To remove saved preferences after a manual installation:
+
+```sh
+defaults delete org.magnetbridge.app
+```
+
 ## Configure
 
 1. Open MagnetBridge → Settings.
