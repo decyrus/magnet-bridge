@@ -271,7 +271,9 @@ xcodebuild \
   build test
 ```
 
-The standalone core tests can also be run with `swift test`.
+`MagnetBridge.xcodeproj` is generated from `project.yml` and is not checked in,
+so run `xcodegen generate` after cloning and whenever targets, sources, or build
+settings change. The standalone core tests can also be run with `swift test`.
 
 ## Project
 

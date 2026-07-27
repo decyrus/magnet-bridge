@@ -22,6 +22,10 @@ jobs:
         architecture: [arm64, x86_64]
     steps:
       - uses: actions/checkout@v6
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate the Xcode project
+        run: xcodegen generate
       - name: Build
         run: |
           xcodebuild \
@@ -39,8 +43,12 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
+      - name: Install XcodeGen
+        run: brew install xcodegen
       - name: Test core package
         run: swift test
+      - name: Generate the Xcode project
+        run: xcodegen generate
       - name: Test Xcode project
         run: |
           xcodebuild \

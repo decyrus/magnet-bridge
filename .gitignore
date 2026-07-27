@@ -61,6 +61,11 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 
+# MagnetBridge generated project
+#
+# project.yml is the source of truth; run `xcodegen generate` to recreate it.
+MagnetBridge.xcodeproj/
+
 # MagnetBridge local build and release artifacts
 .DS_Store
 build/
