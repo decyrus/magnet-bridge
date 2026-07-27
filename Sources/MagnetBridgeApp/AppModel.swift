@@ -164,7 +164,10 @@ final class AppModel {
     isBusy = true
     notice = .progress("Opening in \(application.name)…")
     do {
-      try await open(url, withApplicationAt: application.applicationURL)
+      try await NSWorkspace.shared.open(
+        url,
+        withApplicationAt: application.applicationURL
+      )
       pendingMagnetURL = nil
       notice = .success("Opened in \(application.name).")
       onHandlingFinished?()
@@ -415,23 +418,6 @@ final class AppModel {
       )
     }
     .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-  }
-
-  private func open(_ url: URL, withApplicationAt applicationURL: URL) async throws {
-    try await withCheckedThrowingContinuation {
-      (continuation: CheckedContinuation<Void, Error>) in
-      NSWorkspace.shared.open(
-        [url],
-        withApplicationAt: applicationURL,
-        configuration: NSWorkspace.OpenConfiguration()
-      ) { _, error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
-    }
   }
 }
 

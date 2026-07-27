@@ -69,30 +69,13 @@ public final class BrowserLauncher: BrowserLaunching, @unchecked Sendable {
     }
 
     do {
-      try await open(url, withApplicationAt: applicationURL)
+      try await workspace.open(url, withApplicationAt: applicationURL)
       return BrowserLaunchResult(usedFallback: false)
     } catch {
       guard workspace.open(url) else {
         throw MagnetBridgeError.browserUnavailable(browser.displayName)
       }
       return BrowserLaunchResult(usedFallback: true)
-    }
-  }
-
-  private func open(_ url: URL, withApplicationAt applicationURL: URL) async throws {
-    try await withCheckedThrowingContinuation {
-      (continuation: CheckedContinuation<Void, Error>) in
-      workspace.open(
-        [url],
-        withApplicationAt: applicationURL,
-        configuration: NSWorkspace.OpenConfiguration()
-      ) { _, error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
     }
   }
 }
