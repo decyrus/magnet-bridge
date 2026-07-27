@@ -472,16 +472,6 @@ private struct HelpView: View {
   @Bindable var updater: UpdateController
   @Environment(\.dismiss) private var dismiss
 
-  private var version: String {
-    let shortVersion =
-      Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-      ?? "Development"
-    let build =
-      Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-      ?? "—"
-    return "Version \(shortVersion) (\(build))"
-  }
-
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
       HStack(spacing: 12) {
@@ -556,7 +546,7 @@ private struct HelpView: View {
       Divider()
 
       HStack {
-        Text(version)
+        Text(AppVersion.displayString)
           .font(.caption)
           .foregroundStyle(.secondary)
         Spacer()

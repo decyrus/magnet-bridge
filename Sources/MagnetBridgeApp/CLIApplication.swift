@@ -43,30 +43,7 @@ enum CLIApplication {
   private static let settingsValidator = SettingsValidator()
 
   private static var version: String {
-    if let bundleVersion = Bundle.main.object(
-      forInfoDictionaryKey: "CFBundleShortVersionString"
-    ) as? String {
-      return bundleVersion
-    }
-
-    let executableURL = URL(fileURLWithPath: CommandLine.arguments[0])
-      .resolvingSymlinksInPath()
-    let infoURL =
-      executableURL
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .appendingPathComponent("Info.plist")
-    guard
-      let data = try? Data(contentsOf: infoURL),
-      let info = try? PropertyListSerialization.propertyList(
-        from: data,
-        format: nil
-      ) as? [String: Any],
-      let version = info["CFBundleShortVersionString"] as? String
-    else {
-      return "development"
-    }
-    return version
+    AppVersion.short
   }
 
   private static func configure(_ arguments: [String]) async throws {
