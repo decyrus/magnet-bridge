@@ -9,7 +9,7 @@ jobs:
   format:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check Swift formatting
         run: xcrun swift-format lint --recursive --strict Sources Tests
 
@@ -21,7 +21,7 @@ jobs:
         configuration: [Debug, Release]
         architecture: [arm64, x86_64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build
         run: |
           xcodebuild \
@@ -38,7 +38,7 @@ jobs:
   test:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Test core package
         run: swift test
       - name: Test Xcode project
