@@ -10,9 +10,16 @@ cask "magnet-bridge" do
   depends_on macos: ">= :sonoma"
 
   app "MagnetBridge.app"
+  binary "#{appdir}/MagnetBridge.app/Contents/MacOS/MagnetBridge",
+         target: "magnetbridge"
 
   zap trash: [
     "~/Library/Preferences/org.magnetbridge.app.plist",
     "~/Library/Saved Application State/org.magnetbridge.app.savedState",
   ]
+
+  caveats <<~EOS
+    Configure MagnetBridge from a terminal:
+      magnetbridge configure
+  EOS
 end

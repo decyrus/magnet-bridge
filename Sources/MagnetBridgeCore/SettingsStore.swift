@@ -6,15 +6,20 @@ public protocol SettingsStoring: Sendable {
 }
 
 public final class SettingsStore: SettingsStoring, @unchecked Sendable {
+  public static let applicationSuiteName = "org.magnetbridge.app"
+
   private let defaults: UserDefaults
   private let key: String
   private let lock = NSLock()
 
   public init(
-    defaults: UserDefaults = .standard,
+    defaults: UserDefaults? = nil,
     key: String = "MagnetBridge.settings.v1"
   ) {
-    self.defaults = defaults
+    self.defaults =
+      defaults
+      ?? UserDefaults(suiteName: Self.applicationSuiteName)
+      ?? .standard
     self.key = key
   }
 

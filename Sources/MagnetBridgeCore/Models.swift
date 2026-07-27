@@ -120,7 +120,7 @@ public enum MagnetBridgeError: Error, Equatable, LocalizedError, Sendable {
     case .invalidRPCURL:
       "The Transmission RPC URL is invalid."
     case .insecureHTTPRequiresConfirmation:
-      "This HTTP connection is not encrypted. Confirm its use in Settings."
+      "This HTTP connection is not encrypted. Enable it in the CLI configuration."
     case .authenticationFailed:
       "Transmission rejected the username or password."
     case .serverUnavailable:

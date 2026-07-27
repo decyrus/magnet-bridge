@@ -1,7 +1,9 @@
 # Architecture
 
-MagnetBridge has a SwiftUI application target and a UI-independent
-`MagnetBridgeCore` target.
+MagnetBridge has a headless macOS application target with an embedded CLI mode
+and a UI-independent `MagnetBridgeCore` target. It creates no application
+windows; configuration is performed exclusively through `magnetbridge`
+commands.
 
 ## Request flow
 
@@ -23,6 +25,11 @@ flowchart LR
 `URLHandler` orchestrates one incoming link. `MagnetValidator` enforces scheme,
 size, and `btih`/`btmh` exact-topic rules. `SettingsStore` persists one profile
 without credentials; `KeychainStore` owns the password.
+
+The same signed executable has two entry paths. With CLI arguments it runs the
+configuration wizard or a command and exits. Without arguments, LaunchServices
+starts the headless application, which receives the `magnet:` Apple Event,
+handles it, posts a system notification, and terminates.
 
 `TransmissionClient` is an actor. It sends requests through the injectable
 `NetworkSession` interface and caches the CSRF session ID for its lifetime. On

@@ -5,17 +5,15 @@ Transmission running on a local or remote server, then opens Transmission Web
 UI in your chosen browser. Torrent data is downloaded by the server — never by
 the Mac running MagnetBridge.
 
-The application is written in Swift 6 and SwiftUI. It supports the legacy RPC
-API used by Transmission 4.0.x and the JSON-RPC 2.0 API introduced in
-Transmission 4.1.
+The headless application is written in Swift 6. It supports the legacy RPC API
+used by Transmission 4.0.x and the JSON-RPC 2.0 API introduced in Transmission
+4.1. Configuration is performed exclusively through its command-line interface.
 
 ## Install
 
-Download the signed and notarized `MagnetBridge.zip` from
-[GitHub Releases](https://github.com/decyrus/magnet-bridge/releases), verify the
-published SHA-256 file, and move the app to `/Applications`.
-
-One-line installer (the release archive is SHA-256 verified):
+The recommended one-line installer downloads the signed and notarized release,
+verifies its published SHA-256 checksum, installs the app and CLI, and starts
+the interactive configuration wizard:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/decyrus/magnet-bridge/main/scripts/install.sh | sh
@@ -29,6 +27,12 @@ less install.sh
 sh install.sh
 ```
 
+Set a custom CLI installation directory if needed:
+
+```sh
+MAGNETBRIDGE_BIN_DIR="$HOME/bin" sh install.sh
+```
+
 A generated Homebrew Cask is attached to each release. Until a dedicated
 `decyrus/homebrew-magnet-bridge` tap is published, install it from a downloaded
 Cask file:
@@ -36,6 +40,7 @@ Cask file:
 ```sh
 curl -fLO https://github.com/decyrus/magnet-bridge/releases/latest/download/magnet-bridge.rb
 brew install --cask ./magnet-bridge.rb
+magnetbridge configure
 ```
 
 ## Uninstall
@@ -52,41 +57,67 @@ To remove the app and its saved preferences:
 brew uninstall --zap --cask magnet-bridge
 ```
 
-For a manual or one-line installation, quit MagnetBridge and move
-`MagnetBridge.app` from `/Applications` or `~/Applications` to the Trash.
+For a manual or one-line installation:
+
+```sh
+pkill -x MagnetBridge 2>/dev/null || true
+rm -rf /Applications/MagnetBridge.app "$HOME/Applications/MagnetBridge.app"
+rm -f /usr/local/bin/magnetbridge "$HOME/.local/bin/magnetbridge"
+```
 
 The Transmission password is intentionally left in macOS Keychain during a
-normal uninstall. To remove it as well, open **Keychain Access**, search for
-`org.magnetbridge.app`, and delete the item whose account is
-`transmission-rpc`. Alternatively:
+normal uninstall. To remove the password and preferences as well:
 
 ```sh
 security delete-generic-password \
   -s org.magnetbridge.app \
-  -a transmission-rpc
-```
-
-To remove saved preferences after a manual installation:
-
-```sh
-defaults delete org.magnetbridge.app
+  -a transmission-rpc 2>/dev/null || true
+defaults delete org.magnetbridge.app 2>/dev/null || true
 ```
 
 ## Configure
 
-1. Open MagnetBridge → Settings.
-2. Enter the Transmission RPC URL (usually
-   `http://host:9091/transmission/rpc`) and Web UI URL.
-3. Enter credentials. The password is saved only in macOS Keychain.
-4. Acknowledge the warning if you intentionally use unencrypted HTTP.
-5. Choose the browser and whether newly added torrents start immediately.
-6. Click **Test Connection**, then **Save**.
+Run the interactive wizard after installation:
+
+```sh
+magnetbridge configure
+```
+
+The wizard configures the RPC and Web UI URLs, credentials, timeout, browser,
+and torrent start mode, then offers to test the connection. The password is
+read without terminal echo and stored only in macOS Keychain.
+
+Configuration can also be scripted:
+
+```sh
+magnetbridge config set rpc-url https://server.example/transmission/rpc
+magnetbridge config set web-ui-url https://server.example/transmission/web/
+magnetbridge config set username alice
+magnetbridge config set password
+magnetbridge config set timeout 15
+magnetbridge config set start-mode immediately
+magnetbridge config set open-web-ui true
+magnetbridge config set browser system
+magnetbridge test
+```
+
+Inspect the current non-secret configuration:
+
+```sh
+magnetbridge config show
+```
+
+For an intentionally unencrypted RPC endpoint, explicitly opt in:
+
+```sh
+magnetbridge config set allow-http true
+magnetbridge config set rpc-url http://server.example:9091/transmission/rpc
+```
 
 For remote servers, prefer HTTPS through a trusted reverse proxy, a VPN, or
 Tailscale. Do not expose the Transmission RPC port directly to the internet.
 
-If macOS does not select MagnetBridge automatically, open the app once and then
-test with:
+Test protocol handling with:
 
 ```sh
 open "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"

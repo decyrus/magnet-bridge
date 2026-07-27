@@ -64,6 +64,34 @@ if ! ditto "$APP_SOURCE" "$APP_DESTINATION"; then
     exit 1
 fi
 
+if [ -n "${MAGNETBRIDGE_BIN_DIR:-}" ]; then
+    CLI_DIRECTORY="$MAGNETBRIDGE_BIN_DIR"
+elif [ -d "/usr/local/bin" ] && [ -w "/usr/local/bin" ]; then
+    CLI_DIRECTORY="/usr/local/bin"
+else
+    CLI_DIRECTORY="${HOME}/.local/bin"
+fi
+
+mkdir -p "$CLI_DIRECTORY"
+CLI_DESTINATION="$CLI_DIRECTORY/magnetbridge"
+ln -sfn "$APP_DESTINATION/Contents/MacOS/MagnetBridge" "$CLI_DESTINATION"
+
 echo "Installed MagnetBridge at $APP_DESTINATION"
+echo "Installed the CLI at $CLI_DESTINATION"
 echo "The installer did not remove macOS quarantine or bypass Gatekeeper."
-open "$APP_DESTINATION"
+
+case ":${PATH}:" in
+    *":${CLI_DIRECTORY}:"*) ;;
+    *)
+        echo "Add $CLI_DIRECTORY to PATH to run magnetbridge from any shell."
+        ;;
+esac
+
+if [ -r "/dev/tty" ]; then
+    echo "Starting the configuration wizard…"
+    if ! "$CLI_DESTINATION" configure </dev/tty >/dev/tty 2>/dev/tty; then
+        echo "Configuration was not completed. Run: $CLI_DESTINATION configure" >&2
+    fi
+else
+    echo "Run the configuration wizard: $CLI_DESTINATION configure"
+fi
