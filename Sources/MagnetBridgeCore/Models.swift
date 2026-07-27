@@ -69,19 +69,9 @@ public struct AppSettings: Codable, Equatable, Sendable {
     self.showsMenuBarIcon = showsMenuBarIcon
   }
 
-  private enum CodingKeys: String, CodingKey {
-    case rpcURL
-    case webUIURL
-    case username
-    case usesAuthentication
-    case browser
-    case timeout
-    case opensWebUI
-    case startMode
-    case hasAcknowledgedInsecureHTTP
-    case showsMenuBarIcon
-  }
-
+  /// Decodes settings written by earlier releases, where `usesAuthentication`
+  /// and `showsMenuBarIcon` did not exist yet. Encoding uses the synthesized
+  /// conformance so new properties cannot be forgotten.
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     rpcURL = try container.decode(String.self, forKey: .rpcURL)
@@ -100,23 +90,6 @@ public struct AppSettings: Codable, Equatable, Sendable {
     )
     showsMenuBarIcon =
       try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? true
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(rpcURL, forKey: .rpcURL)
-    try container.encode(webUIURL, forKey: .webUIURL)
-    try container.encode(username, forKey: .username)
-    try container.encode(usesAuthentication, forKey: .usesAuthentication)
-    try container.encode(browser, forKey: .browser)
-    try container.encode(timeout, forKey: .timeout)
-    try container.encode(opensWebUI, forKey: .opensWebUI)
-    try container.encode(startMode, forKey: .startMode)
-    try container.encode(
-      hasAcknowledgedInsecureHTTP,
-      forKey: .hasAcknowledgedInsecureHTTP
-    )
-    try container.encode(showsMenuBarIcon, forKey: .showsMenuBarIcon)
   }
 }
 

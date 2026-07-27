@@ -25,6 +25,31 @@ final class SecurityAndStoreTests: XCTestCase {
     XCTAssertFalse(String(decoding: encoded, as: UTF8.self).lowercased().contains("password"))
   }
 
+  func testSettingsRoundTripPreservesEveryProperty() throws {
+    let settings = AppSettings(
+      rpcURL: "https://example.com/transmission/rpc",
+      webUIURL: "https://example.com/transmission/web/",
+      username: "alice",
+      usesAuthentication: true,
+      browser: BrowserSelection(
+        bundleIdentifier: "com.example.browser",
+        displayName: "Example"
+      ),
+      timeout: 42,
+      opensWebUI: false,
+      startMode: .paused,
+      hasAcknowledgedInsecureHTTP: true,
+      showsMenuBarIcon: false
+    )
+
+    let decoded = try JSONDecoder().decode(
+      AppSettings.self,
+      from: JSONEncoder().encode(settings)
+    )
+
+    XCTAssertEqual(decoded, settings)
+  }
+
   func testSettingsFromOlderReleaseEnablesMenuBarByDefault() throws {
     let currentData = try JSONEncoder().encode(AppSettings.defaults)
     var object = try XCTUnwrap(
