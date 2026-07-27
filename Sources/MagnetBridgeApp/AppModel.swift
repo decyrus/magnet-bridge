@@ -240,8 +240,9 @@ final class AppModel {
         )
       )
       let info = try await client.testConnection()
-      let protocolName = info.protocolKind == .jsonRPC2 ? "JSON-RPC 2.0" : "legacy RPC"
-      notice = .success("Connected to Transmission \(info.version) using \(protocolName).")
+      notice = .success(
+        "Connected to Transmission \(info.version) using \(info.protocolKind.displayName)."
+      )
     } catch {
       notice = .failure(error.localizedDescription)
     }

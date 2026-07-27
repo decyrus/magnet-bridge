@@ -324,7 +324,8 @@ enum CLIApplication {
     TerminalUI.info("Testing the Transmission connection…")
     let info = try await client.testConnection()
     TerminalUI.success(
-      "Connected to Transmission \(info.version), RPC \(info.protocolVersion ?? "unknown") (\(info.protocolKind == .jsonRPC2 ? "JSON-RPC 2.0" : "legacy")."
+      "Connected to Transmission \(info.version), "
+        + "RPC \(info.protocolVersion ?? "unknown") (\(info.protocolKind.displayName))."
     )
   }
 

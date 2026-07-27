@@ -156,6 +156,15 @@ public struct ConnectionInfo: Equatable, Sendable {
 public enum TransmissionProtocol: String, Codable, Sendable {
   case legacy
   case jsonRPC2
+
+  public var displayName: String {
+    switch self {
+    case .legacy:
+      "legacy RPC"
+    case .jsonRPC2:
+      "JSON-RPC 2.0"
+    }
+  }
 }
 
 public enum MagnetBridgeError: Error, Equatable, LocalizedError, Sendable {
