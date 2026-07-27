@@ -80,6 +80,12 @@ echo "Installed MagnetBridge at $APP_DESTINATION"
 echo "Installed the CLI at $CLI_DESTINATION"
 echo "The installer did not remove macOS quarantine or bypass Gatekeeper."
 
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+if [ -x "$LSREGISTER" ]; then
+    "$LSREGISTER" -f "$APP_DESTINATION" >/dev/null 2>&1 || \
+        echo "Warning: macOS did not register MagnetBridge with LaunchServices." >&2
+fi
+
 case ":${PATH}:" in
     *":${CLI_DIRECTORY}:"*) ;;
     *)

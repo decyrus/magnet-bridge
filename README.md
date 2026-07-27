@@ -88,11 +88,20 @@ The wizard asks for one server address, such as
 `/transmission/rpc` and `/transmission/web/` paths. It also configures Basic
 Authentication, timeout, browser, and torrent start mode, then offers to test
 the connection. The password is read without terminal echo and stored only in
-macOS Keychain.
+macOS Keychain. After saving, the wizard registers MagnetBridge as the default
+handler for `magnet:` links.
 
 Interactive output uses color, clear sections, and status icons. Colors are
 disabled automatically when output is redirected. Set `NO_COLOR=1` or
 `TERM=dumb` to disable ANSI colors explicitly.
+
+Check or repair the system protocol association at any time:
+
+```sh
+magnetbridge status
+magnetbridge register
+magnetbridge unregister
+```
 
 Configuration can also be scripted:
 

@@ -16,6 +16,12 @@ enum CLIApplication {
         try await configure(Array(arguments.dropFirst()))
       case "test":
         try await testConnection()
+      case "register":
+        try await registerMagnetHandler()
+      case "unregister":
+        try await restoreMagnetHandler()
+      case "status":
+        await showStatus()
       case "config":
         try await runConfig(Array(arguments.dropFirst()))
       case "version", "--version", "-v":
@@ -153,6 +159,7 @@ enum CLIApplication {
     }
     TerminalUI.line("")
     TerminalUI.success("Configuration saved")
+    try await registerMagnetHandler()
 
     if promptBoolean("Test the connection now?", default: true) {
       try await testConnection()
@@ -288,6 +295,32 @@ enum CLIApplication {
     let info = try await client.testConnection()
     TerminalUI.success(
       "Connected to Transmission \(info.version), RPC \(info.protocolVersion ?? "unknown") (\(info.protocolKind == .jsonRPC2 ? "JSON-RPC 2.0" : "legacy")."
+    )
+  }
+
+  private static func registerMagnetHandler() async throws {
+    TerminalUI.info("Registering MagnetBridge for magnet: links…")
+    try await MagnetHandlerRegistration.makeDefault()
+    TerminalUI.success("MagnetBridge is the default magnet: handler")
+  }
+
+  private static func restoreMagnetHandler() async throws {
+    TerminalUI.info("Restoring the previous magnet: handler…")
+    let handler = try await MagnetHandlerRegistration.restorePrevious()
+    TerminalUI.success("Restored \(handler)")
+  }
+
+  @MainActor
+  private static func showStatus() {
+    TerminalUI.banner(version: version)
+    TerminalUI.heading("Integration status")
+    TerminalUI.keyValue(
+      "magnet handler",
+      MagnetHandlerRegistration.currentHandlerDescription()
+    )
+    TerminalUI.keyValue(
+      "restore target",
+      MagnetHandlerRegistration.previousHandlerDescription()
     )
   }
 
@@ -439,6 +472,9 @@ enum CLIApplication {
       "  \(TerminalUI.command("magnetbridge configure")) \(TerminalUI.muted("[--advanced]"))"
     )
     TerminalUI.line("  \(TerminalUI.command("magnetbridge test"))")
+    TerminalUI.line("  \(TerminalUI.command("magnetbridge register"))")
+    TerminalUI.line("  \(TerminalUI.command("magnetbridge unregister"))")
+    TerminalUI.line("  \(TerminalUI.command("magnetbridge status"))")
     TerminalUI.line(
       "  \(TerminalUI.command("magnetbridge config show")) \(TerminalUI.muted("[--advanced]"))"
     )

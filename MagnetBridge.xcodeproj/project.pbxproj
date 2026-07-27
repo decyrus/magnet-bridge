@@ -13,6 +13,7 @@
 		2C5665B573B2B6BE13CBDF20 /* TransmissionClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AAD23E8EF2598112B18D4D /* TransmissionClientTests.swift */; };
 		32AE9068542A601F4DC6A576 /* TransmissionClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB86095E26092DE0124F62CE /* TransmissionClient.swift */; };
 		37C068023A28A53B28B313A5 /* libMagnetBridgeCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EB198BDF518A82B8C8FF18C /* libMagnetBridgeCore.a */; };
+		43AC72C7D9375687DA35E1E8 /* MagnetHandlerRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3A2F60A451DD68C16B5D64 /* MagnetHandlerRegistration.swift */; };
 		4A1219EA5D92D69CB5AF1417 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5397CF20598960C1BB57152 /* KeychainStore.swift */; };
 		4B511D6E7E98DDE834F5BBAC /* MagnetValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5C8DDB459A342C3B7B1408 /* MagnetValidator.swift */; };
 		5E842EAC0B1A8B8F894EAD60 /* URLHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6D90747306D5B8051692852 /* URLHandlerTests.swift */; };
@@ -67,6 +68,7 @@
 		B100B05F73BB423DEB882F85 /* RPCAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCAdapterTests.swift; sourceTree = "<group>"; };
 		B86914ADA572C8F27036E1A8 /* TransmissionEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionEndpoints.swift; sourceTree = "<group>"; };
 		BA96922BD475CA5246B49F45 /* SecretRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretRedactor.swift; sourceTree = "<group>"; };
+		BB3A2F60A451DD68C16B5D64 /* MagnetHandlerRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagnetHandlerRegistration.swift; sourceTree = "<group>"; };
 		D5397CF20598960C1BB57152 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		D6D90747306D5B8051692852 /* URLHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLHandlerTests.swift; sourceTree = "<group>"; };
 		DB86095E26092DE0124F62CE /* TransmissionClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionClient.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 			children = (
 				FD78EA4C37A603ACA53BF3A4 /* CLIApplication.swift */,
 				7AA6F72B46A1565E4DA5A909 /* MagnetBridgeApp.swift */,
+				BB3A2F60A451DD68C16B5D64 /* MagnetHandlerRegistration.swift */,
 				0BCACD1B022FC79BC91FE008 /* TerminalUI.swift */,
 			);
 			name = MagnetBridgeApp;
@@ -281,6 +284,7 @@
 			files = (
 				6D2361912E50FD0024398B75 /* CLIApplication.swift in Sources */,
 				A706AE41A445B9FEC52E5028 /* MagnetBridgeApp.swift in Sources */,
+				43AC72C7D9375687DA35E1E8 /* MagnetHandlerRegistration.swift in Sources */,
 				00E7657C30CCB7D2C9AEDD76 /* TerminalUI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
