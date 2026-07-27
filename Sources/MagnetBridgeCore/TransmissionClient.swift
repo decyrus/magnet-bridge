@@ -43,6 +43,8 @@ public struct TransmissionConfiguration: Equatable, Sendable {
 }
 
 public actor TransmissionClient {
+  private static let maximumAttempts = 3
+
   private let configuration: TransmissionConfiguration
   private let session: any NetworkSession
   private var sessionID: String?
@@ -57,30 +59,36 @@ public actor TransmissionClient {
   }
 
   public func add(magnetURL: URL, paused: Bool) async throws -> TorrentAddOutcome {
+    try await negotiating(
+      request: { try $0.makeAddRequest(magnetURL: magnetURL, paused: paused) },
+      response: { try $0.parseAddResponse($1) }
+    )
+  }
+
+  public func testConnection() async throws -> ConnectionInfo {
+    try await negotiating(
+      request: { try $0.makeSessionRequest() },
+      response: { try $0.parseSessionResponse($1) }
+    )
+  }
+
+  /// Sends a request built by the adapter for the protocol negotiated so far,
+  /// retrying while Transmission answers 409 to hand out a session identifier
+  /// or to announce a different RPC protocol.
+  private func negotiating<Value>(
+    request makeRequest: (any TransmissionRPCAdapting) throws -> Data,
+    response parseResponse: (any TransmissionRPCAdapting, Data) throws -> Value
+  ) async throws -> Value {
     try validateTransport()
-    for _ in 0..<3 {
+    for _ in 0..<Self.maximumAttempts {
       let adapter = adapterForCurrentProtocol()
-      let body = try adapter.makeAddRequest(magnetURL: magnetURL, paused: paused)
+      let body = try makeRequest(adapter)
       let result = try await perform(body: body)
       if result.shouldRetry {
         continue
       }
       negotiatedProtocol = adapter.protocolKind
-      return try adapter.parseAddResponse(result.data)
-    }
-    throw MagnetBridgeError.invalidResponse
-  }
-
-  public func testConnection() async throws -> ConnectionInfo {
-    try validateTransport()
-    for _ in 0..<3 {
-      let adapter = adapterForCurrentProtocol()
-      let result = try await perform(body: adapter.makeSessionRequest())
-      if result.shouldRetry {
-        continue
-      }
-      negotiatedProtocol = adapter.protocolKind
-      return try adapter.parseSessionResponse(result.data)
+      return try parseResponse(adapter, result.data)
     }
     throw MagnetBridgeError.invalidResponse
   }
@@ -149,23 +157,15 @@ public actor TransmissionClient {
         return NetworkResult(data: data, shouldRetry: true)
       case 401, 403:
         throw MagnetBridgeError.authenticationFailed
-      case 500...599:
-        throw MagnetBridgeError.serverError(response.statusCode)
       default:
         throw MagnetBridgeError.serverError(response.statusCode)
       }
     } catch let error as MagnetBridgeError {
       throw error
     } catch let error as URLError {
-      switch error.code {
-      case .timedOut:
-        throw MagnetBridgeError.timedOut
-      case .cannotConnectToHost, .cannotFindHost, .dnsLookupFailed,
-        .networkConnectionLost, .notConnectedToInternet:
-        throw MagnetBridgeError.serverUnavailable
-      default:
-        throw MagnetBridgeError.serverUnavailable
-      }
+      throw error.code == .timedOut
+        ? MagnetBridgeError.timedOut
+        : MagnetBridgeError.serverUnavailable
     } catch {
       throw MagnetBridgeError.serverUnavailable
     }

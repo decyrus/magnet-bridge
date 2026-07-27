@@ -100,6 +100,7 @@ final class TransmissionClientTests: XCTestCase {
     for (status, expected) in [
       (401, MagnetBridgeError.authenticationFailed),
       (403, MagnetBridgeError.authenticationFailed),
+      (404, MagnetBridgeError.serverError(404)),
       (500, MagnetBridgeError.serverError(500)),
       (503, MagnetBridgeError.serverError(503)),
     ] {
